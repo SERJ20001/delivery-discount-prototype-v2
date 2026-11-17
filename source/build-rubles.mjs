@@ -46,12 +46,17 @@ await updateEntryManifest(root, output, manifestPath);
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const newAssets = [
   ['86592.svg', '3544:55840', [14, 16], 'original item edit icon'],
-  ['38777.svg', '3544:59146', [10, 16], 'original small clear icon']
+  ['38777.svg', '3544:59146', [10, 16], 'original small clear icon'],
+  ['54616.svg', '3570:98312', [21, 21], 'inverse selected checkbox'],
+  ['9befd.svg', '3573:111193', [21, 21], 'inverse unchecked checkbox'],
+  ['49135.svg', '3570:98253', [14, 16], 'custom amount edit icon'],
+  ['bc31a.svg', '3570:96506', [14, 20], 'discount limits notice tag'],
+  ['3c5f8.svg', '3573:111201', [14, 20], 'toast close icon']
 ];
 for (const [name, nodeId, dimensions, role] of newAssets) {
   const file = 'assets/current/' + name;
   const bytes = await readFile(path.join(output, file));
-  const entry = { id: name.split('.')[0], file, path: 'rubles/' + file, kind: 'image', used: true, review: 'agent-checked', sizeBytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), logical: dimensions, physical: dimensions, dimensions, scale: 1, role, sourceNodes: [nodeId], source: { fileKey: 'OaolVHaabrE8Nv9upVA0wD', nodeId }, designContext: '3542:50077' };
+  const entry = { id: name.split('.')[0], file, path: 'rubles/' + file, kind: 'image', used: true, review: 'agent-checked', sizeBytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), logical: dimensions, physical: dimensions, dimensions, scale: 1, role, sourceNodes: [nodeId], source: { fileKey: 'OaolVHaabrE8Nv9upVA0wD', nodeId }, designContext: '3573:111220' };
   const index = manifest.assets.findIndex(asset => asset.file === file);
   if (index < 0) manifest.assets.push(entry);
   else manifest.assets[index] = entry;
@@ -60,7 +65,7 @@ for (const file of Object.keys(bundledAssets)) {
   if (manifest.assets.some(entry => entry.file === file)) continue;
   throw new Error(`Missing asset provenance: ${file}`);
 }
-manifest.section = '3542:50077';
-const retired = ['38777.svg', '64152.svg', '8bc71.svg', '96048.svg', 'e157a.svg', 'e6ee2.svg', 'ec93c.svg', 'cffe9.png', 'd83ab.png'];
+manifest.section = '3573:111220';
+const retired = ['c8762.svg', 'f84ba.svg', '228b7.svg', 'a31ca.svg', '44895.png', 'd4af4.png', '3d0bd.png', '385c1.png', '38777.svg', '64152.svg', '8bc71.svg', '96048.svg', 'e157a.svg', 'e6ee2.svg', 'ec93c.svg', 'cffe9.png', 'd83ab.png'];
 for (const entry of manifest.assets) if (retired.some(name => entry.file === 'assets/current/' + name)) entry.used = false;
 await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');

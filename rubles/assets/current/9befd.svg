@@ -1,0 +1,6 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="x/Checkbox">
+<path id="BG" d="M1 5C1 2.79086 2.79086 1 5 1H15C17.2091 1 19 2.79086 19 5V15C19 17.2091 17.2091 19 15 19H5C2.79086 19 1 17.2091 1 15V5Z" fill="#141414"/>
+<path id="faint" d="M16.4131 6.3609L8.57876 14.7979L3.58984 10.5217L4.89143 9.0032L8.42102 12.0286L14.9475 5L16.4131 6.3609Z" fill-rule="evenodd" clip-rule="evenodd" fill="white"/>
+</g>
+</svg>

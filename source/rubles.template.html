@@ -41,17 +41,17 @@
 <section class="selection">
 <button class="count-pill" id="select-all"><img src="assets/current/a4747.svg" alt=""><span id="selection-count"></span></button>
 <div class="calculator">
-<button class="calculator-status" id="ai-caption" data-info="ai"><span>Ai подобрал скидки для товаров</span><img src="assets/current/f84ba.svg" alt=""></button>
 <div class="calculator-controls">
 <div class="options" id="options"></div>
 <button class="primary" id="apply">Применить</button>
 </div><div class="home"><span></span></div>
 </div></section></div>
-<section id="editor" class="editor" role="dialog" aria-modal="true" aria-labelledby="editor-product-title" hidden>
+<section id="editor" class="editor" role="dialog" aria-modal="true" aria-label="Настройка скидки" hidden>
 <button id="cancel-area" class="cancel-area" aria-label="Отменить изменение"></button>
 <div class="editor-stack">
 <div class="editor-product" id="editor-product"></div>
 <div class="editor-controls">
+<div id="bulk-notice" class="bulk-notice" role="status" hidden></div>
 <div class="editor-panel">
 <div class="editor-options options" id="editor-options"></div>
 <button id="done" class="primary">Применить скидку</button>
@@ -59,12 +59,7 @@
 <button id="remove-discount" class="primary secondary" hidden>Удалить скидку</button>
 </div><div id="keyboard" class="keyboard"></div></div></div>
 </section>
-<div class="info" id="info" hidden><section class="sheet ai-sheet" role="dialog" aria-modal="true" aria-labelledby="ai-info-title">
-<div class="sheet-handle"></div><button id="close-info" class="close" aria-label="Закрыть"><img src="assets/current/228b7.svg" alt=""></button>
-<div class="sheet-body ai-info" id="ai-info"><h2 id="ai-info-title">Нейросеть рекомендует скидку</h2><ul><li><img src="assets/current/44895.png" alt=""><p>Нейросеть узнала, что помогает другим продавать похожие товары</p></li><li><img src="assets/current/d4af4.png" alt=""><p>И определила оптимальную скидку для вашего товара</p></li><li><img src="assets/current/3d0bd.png" alt=""><p>Для нескольких товаров ИИ может предложить диапазон скидок</p></li><li><img src="assets/current/385c1.png" alt=""><p>У разных товаров предлагаемая скидка может отличаться</p></li></ul></div>
-<footer class="sheet-footer"><button id="understood" class="primary secondary">Круто!</button><div class="home"><span></span></div></footer>
-</section></div>
-<div class="toast" id="toast" role="status" hidden></div>
+<div class="toast" id="toast" hidden><span id="toast-message" role="status"></span><button id="dismiss-toast" aria-label="Закрыть уведомление"><img src="assets/current/3c5f8.svg" alt=""></button></div>
 </main></div>
 </body>
 </html>

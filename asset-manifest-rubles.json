@@ -1,7 +1,7 @@
 {
   "version": 1,
   "figmaFile": "OaolVHaabrE8Nv9upVA0wD",
-  "section": "3542:50077",
+  "section": "3573:111220",
   "assets": [
     {
       "file": "assets/avito-sans-text-bold.woff2",
@@ -505,7 +505,7 @@
       "id": "c8762",
       "path": "rubles/assets/current/c8762.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "logical": [
         12,
@@ -744,7 +744,7 @@
       "id": "f84ba",
       "path": "rubles/assets/current/f84ba.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "logical": [
         12,
@@ -872,7 +872,7 @@
       "id": "228b7",
       "path": "rubles/assets/current/228b7.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "logical": [
         20,
@@ -963,7 +963,7 @@
       "file": "assets/current/385c1.png",
       "path": "rubles/assets/current/385c1.png",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 93480,
       "sha256": "b18df6daf036e26159c8f546392a5ae132c1b49042596db9bd9b116b7d72711b",
@@ -999,7 +999,7 @@
       "file": "assets/current/3d0bd.png",
       "path": "rubles/assets/current/3d0bd.png",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 93922,
       "sha256": "90c4ce118381f608db4a6c692fbe527d260ae2ca54007158ac2cf263370ced41",
@@ -1035,7 +1035,7 @@
       "file": "assets/current/44895.png",
       "path": "rubles/assets/current/44895.png",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 151093,
       "sha256": "c9e9de4a2edc0f749e32ef43e9675fe728397586c322ee65c4685b3bce169f7b",
@@ -1107,7 +1107,7 @@
       "file": "assets/current/a31ca.svg",
       "path": "rubles/assets/current/a31ca.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 781,
       "sha256": "8ff411a46aca0640bac78c75462b45c01c238a8caf2b178bc6d8557f87d10a3c",
@@ -1239,7 +1239,7 @@
       "file": "assets/current/d4af4.png",
       "path": "rubles/assets/current/d4af4.png",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 50678,
       "sha256": "4a37d43e43d110c084132093cda0cafc673989f0d3e8e63b204478c710c8a2ba",
@@ -2074,7 +2074,7 @@
         "fileKey": "OaolVHaabrE8Nv9upVA0wD",
         "nodeId": "3544:55840"
       },
-      "designContext": "3542:50077"
+      "designContext": "3573:111220"
     },
     {
       "id": "38777",
@@ -2106,7 +2106,167 @@
         "fileKey": "OaolVHaabrE8Nv9upVA0wD",
         "nodeId": "3544:59146"
       },
-      "designContext": "3542:50077"
+      "designContext": "3573:111220"
+    },
+    {
+      "id": "54616",
+      "file": "assets/current/54616.svg",
+      "path": "rubles/assets/current/54616.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 534,
+      "sha256": "be5187cd6920e487752547e5220d97b79a49cd30f7df7fb38b6e6307ffe8a78e",
+      "logical": [
+        21,
+        21
+      ],
+      "physical": [
+        21,
+        21
+      ],
+      "dimensions": [
+        21,
+        21
+      ],
+      "scale": 1,
+      "role": "inverse selected checkbox",
+      "sourceNodes": [
+        "3570:98312"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3570:98312"
+      },
+      "designContext": "3573:111220"
+    },
+    {
+      "id": "9befd",
+      "file": "assets/current/9befd.svg",
+      "path": "rubles/assets/current/9befd.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 534,
+      "sha256": "4d9d9026f55b38ce8f664af1819316dde3003c237f96884b9eff912d17f8b6fd",
+      "logical": [
+        21,
+        21
+      ],
+      "physical": [
+        21,
+        21
+      ],
+      "dimensions": [
+        21,
+        21
+      ],
+      "scale": 1,
+      "role": "inverse unchecked checkbox",
+      "sourceNodes": [
+        "3573:111193"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3573:111193"
+      },
+      "designContext": "3573:111220"
+    },
+    {
+      "id": "49135",
+      "file": "assets/current/49135.svg",
+      "path": "rubles/assets/current/49135.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 624,
+      "sha256": "6e6f7c99821e26d9ecd39706f216fc93e9691a8bffcdce875a5960118e6dd9b0",
+      "logical": [
+        14,
+        16
+      ],
+      "physical": [
+        14,
+        16
+      ],
+      "dimensions": [
+        14,
+        16
+      ],
+      "scale": 1,
+      "role": "custom amount edit icon",
+      "sourceNodes": [
+        "3570:98253"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3570:98253"
+      },
+      "designContext": "3573:111220"
+    },
+    {
+      "id": "bc31a",
+      "file": "assets/current/bc31a.svg",
+      "path": "rubles/assets/current/bc31a.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 874,
+      "sha256": "c58ba9229f35c17ff0cfd4ae45ea1028c75bd1e9127549f726e5748057d8f33a",
+      "logical": [
+        14,
+        20
+      ],
+      "physical": [
+        14,
+        20
+      ],
+      "dimensions": [
+        14,
+        20
+      ],
+      "scale": 1,
+      "role": "discount limits notice tag",
+      "sourceNodes": [
+        "3570:96506"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3570:96506"
+      },
+      "designContext": "3573:111220"
+    },
+    {
+      "id": "3c5f8",
+      "file": "assets/current/3c5f8.svg",
+      "path": "rubles/assets/current/3c5f8.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 395,
+      "sha256": "55de915873f1d521e9d923d0b133dcc03fb42c01f98852f4d99d7b3e5a24dc91",
+      "logical": [
+        14,
+        20
+      ],
+      "physical": [
+        14,
+        20
+      ],
+      "dimensions": [
+        14,
+        20
+      ],
+      "scale": 1,
+      "role": "toast close icon",
+      "sourceNodes": [
+        "3573:111201"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3573:111201"
+      },
+      "designContext": "3573:111220"
     }
   ],
   "regions": [

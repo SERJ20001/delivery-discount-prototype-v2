@@ -2,7 +2,7 @@ const { limits } = DiscountModel;
 const asset = name => `assets/current/${name}`;
 const allItems = categories.flatMap(category => category.items);
 const inventory = [...allItems, previousItem];
-const state = { tab: 'eligible', selected: new Set(), applied: new Map([[previousItem.id, calculateAmount(previousItem, 300)]]), range: 'recommended', previews: new Map(), editor: null };
+const state = { tab: 'eligible', selected: new Set(), applied: new Map([[previousItem.id, calculateAmount(previousItem, 300)]]), previews: new Map(), editor: null };
 const money = value => `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const word = count => count % 10 === 1 && count % 100 !== 11 ? 'товар' : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? 'товара' : 'товаров';
 const $ = selector => document.querySelector(selector);
@@ -14,7 +14,6 @@ const groupItems = index => visibleItems().filter(item => categories[index].item
 let toastTimer;
 let toastRun = 0;
 let editorTrigger;
-let infoTrigger;
 
 function calculateAmount(item, requestedAmount) {
   const requested = Number(requestedAmount);
@@ -24,18 +23,13 @@ function calculateAmount(item, requestedAmount) {
   return { amount, requestedAmount: requested, minimum, maximum, limited: amount !== requested };
 }
 
-function rangeAmount(item, range = state.range) {
-  const base = Math.min(600, Math.max(100, item.recommendedAmount));
-  const requested = range === 'higher' ? Math.round((600 + (base - 100) / 500 * 600) / 50) * 50 : base;
-  return calculateAmount(item, requested);
+function optimalAmount(item) {
+  const { minimum, maximum } = limits(item.price);
+  return calculateAmount(item, Math.round((minimum + maximum) / 2));
 }
 
-function rangeLabel(items, range) {
-  const amounts = items.map(item => state.range === range ? preview(item).amount : rangeAmount(item, range).amount);
-  const minimum = Math.min(...amounts);
-  const maximum = Math.max(...amounts);
-  return minimum === maximum ? money(minimum) : `${new Intl.NumberFormat('ru-RU').format(minimum)} – ${money(maximum)}`;
-}
+const recipientWord = count => count % 10 === 1 && count % 100 !== 11 ? 'товару' : 'товарам';
+const genitiveWord = count => count % 10 === 1 && count % 100 !== 11 ? 'товара' : 'товаров';
 
 function singlePresets(item) {
   return [...new Set([100, 200, 300].map(value => calculateAmount(item, value).amount))];
@@ -58,7 +52,7 @@ function productMarkup(item) {
   return `<article class="product" data-id="${item.id}"><button class="product-select" data-select="${item.id}" aria-pressed="${selected}" aria-label="${selected ? 'Снять выбор' : 'Выбрать'}: ${item.title}, ${money(item.price)}"><span class="product-photo">${photo(item)}</span><span class="product-check">${checkbox(selected)}</span><span class="product-body"><strong class="product-price">${money(item.price)}</strong><span class="product-title">${item.title}</span></span></button>${chip}</article>`;
 }
 function presetButtons(item, selectedAmount, attribute) {
-  return singlePresets(item).map((amount, index) => `<button class="chip ${index === 0 ? 'ai-chip' : ''} ${amount === selectedAmount ? 'active' : ''}" ${attribute}="${amount}" aria-pressed="${amount === selectedAmount}">${index === 0 ? `<img src="${asset('c8762.svg')}" alt="">` : ''}${money(amount)}</button>`).join('');
+  return singlePresets(item).map(amount => `<button class="chip ${amount === selectedAmount ? 'active' : ''}" ${attribute}="${amount}" aria-pressed="${amount === selectedAmount}">${money(amount)}</button>`).join('');
 }
 
 function render(animate = true) {
@@ -86,19 +80,19 @@ function render(animate = true) {
     return `<section class="category" data-group="${index}"><h2 class="category-title"><button data-category="${index}" aria-pressed="${checked}">${checkbox(checked)}<span>${category.name}</span></button></h2>${items.map(productMarkup).join('')}</section>`;
   }).join('') || '<p class="empty">Здесь пока нет товаров</p>';
   $('.calculator').hidden = chosen.length === 0;
-  $('#selection-count').textContent = chosen.length ? `${chosen.length} ${word(chosen.length)}` : 'Выбрать все товары';
+  $('#selection-count').textContent = chosen.length ? `${chosen.length} ${word(chosen.length)}` : 'Выбрать все';
   $('#select-all').disabled = !visibleItems().length;
   $('#select-all').setAttribute('aria-pressed', String(chosen.length > 0));
   $('#select-all').setAttribute('aria-label', chosen.length === visibleItems().length ? 'Снять выбор со всех товаров' : 'Выбрать все товары');
-  $('#select-all').querySelector('img').src = chosen.length > 0 ? asset('a4747.svg') : 'assets/checkbox-inactive.svg';
-  $('#ai-caption').hidden = discounted;
+  $('#select-all').querySelector('img').src = chosen.length > 0 ? asset('54616.svg') : asset('9befd.svg');
   if (chosen.length > 1) {
-    $('#options').innerHTML = ['recommended', 'higher'].map((range, index) => `<button class="chip range-chip ${index === 0 ? 'ai-chip' : ''} ${state.range === range ? 'active' : ''}" data-range="${range}" aria-pressed="${state.range === range}">${index === 0 ? `<img src="${asset('c8762.svg')}" alt="">` : ''}${rangeLabel(chosen, range)}</button>`).join('');
+    const optimal = chosen.every(item => preview(item).amount === optimalAmount(item).amount);
+    $('#options').innerHTML = `<button class="chip ${optimal ? 'active' : ''}" data-range="optimal" aria-pressed="${optimal}">Оптимальная</button><button class="chip custom-option" id="edit-bulk">Своя<img src="${asset('49135.svg')}" alt=""></button>`;
   } else if (chosen.length === 1) {
     const item = chosen[0];
     const amount = preview(item).amount;
     const custom = !singlePresets(item).includes(amount);
-    $('#options').innerHTML = presetButtons(item, amount, 'data-amount') + `<button class="chip custom-option ${custom ? 'active' : ''}" id="edit" data-edit="${item.id}">${custom ? money(amount) : 'Своя'}</button>`;
+    $('#options').innerHTML = presetButtons(item, amount, 'data-amount') + `<button class="chip custom-option ${custom ? 'active' : ''}" id="edit" data-edit="${item.id}">Своя<img src="${asset('49135.svg')}" alt=""></button>`;
   } else $('#options').innerHTML = '';
   const removing = discounted && chosen.length > 0 && chosen.every(item => preview(item).amount === state.applied.get(item.id).amount);
   $('#apply').textContent = removing ? 'Удалить скидку' : 'Применить';
@@ -135,61 +129,85 @@ function prepareSelection() {
   const chosen = chosenItems();
   for (const item of chosen) {
     if (state.previews.has(item.id)) continue;
-    const result = state.applied.get(item.id) ?? (chosen.length === 1 ? calculateAmount(item, singlePresets(item)[0]) : rangeAmount(item));
+    const result = state.applied.get(item.id) ?? (chosen.length === 1 ? calculateAmount(item, singlePresets(item)[0]) : optimalAmount(item));
     state.previews.set(item.id, result);
   }
 }
 
-function openEditor(itemId, custom = false) {
-  const item = inventory.find(item => item.id === itemId);
-  if (!item) return;
+function openEditor(itemId = null) {
+  const item = itemId ? inventory.find(product => product.id === itemId) : null;
+  const items = item ? [item] : chosenItems();
+  if (!items.length) return;
   PrototypeMotion.clearGhosts();
   PrototypeMotion.cancel($('#editor'));
   $('#scroll').scrollTo({ top: $('#scroll').scrollTop, behavior: 'auto' });
-  const origin = $(`[data-id="${item.id}"]`).getBoundingClientRect();
+  const origin = item ? $(`[data-id="${item.id}"]`).getBoundingClientRect() : null;
   const positions = PrototypeMotion.snapshot();
   editorTrigger = document.activeElement;
-  const amount = preview(item)?.amount ?? rangeAmount(item).amount;
-  state.editor = { item, mode: custom || !singlePresets(item).includes(amount) ? 'custom' : 'preset', draft: String(amount), scrollTop: $('#scroll').scrollTop };
+  const commonMinimum = Math.max(...items.map(product => limits(product.price).minimum));
+  const commonMaximum = Math.min(...items.map(product => limits(product.price).maximum));
+  const amounts = items.map(product => preview(product)?.amount ?? optimalAmount(product).amount).sort((a, b) => a - b);
+  const middle = amounts[Math.floor(amounts.length / 2)];
+  const initial = item ? amounts[0] : commonMinimum <= commonMaximum ? Math.max(commonMinimum, Math.min(commonMaximum, middle)) : middle;
+  state.editor = { item, items: [...items], draft: String(initial), scrollTop: $('#scroll').scrollTop };
   hideToast();
   setEditorProductVisibility();
   PrototypeMotion.layout(positions);
   $('#screen').inert = true;
   $('#editor').hidden = false;
-  $('#editor-options').innerHTML = `<div class="editor-presets" id="editor-presets"></div><label class="custom-input"><input id="amount" type="text" inputmode="none" autocomplete="off" maxlength="6" aria-label="Своя сумма скидки в рублях"><span id="amount-suffix">₽</span></label><div id="limit-tooltip" class="limit-tooltip" role="tooltip" aria-live="polite" hidden></div>`;
+  $('#editor').classList.toggle('bulk-editor', !item);
+  $('#editor').classList.toggle('individual-editor', Boolean(item));
+  $('#editor').setAttribute('aria-label', item ? `Скидка: ${item.title}` : 'Скидка для выбранных товаров');
+  $('#editor-product').hidden = !item;
+  $('#editor-options').innerHTML = `<label class="custom-input"><input id="amount" type="text" inputmode="none" autocomplete="off" maxlength="6" aria-label="Сумма скидки в рублях"><span id="amount-suffix">₽</span></label><div class="amount-slider"><input id="amount-slider" type="range" step="1" aria-label="Скидка на слайдере"><div class="slider-labels"><span id="minimum-label"></span><span id="maximum-label"></span></div></div><div id="limit-tooltip" class="limit-tooltip" role="tooltip" aria-live="polite" hidden></div>`;
   updateEditor();
-  if (custom) { $('#amount').focus({ preventScroll: true }); $('#amount').select(); }
-  else $('#done').focus({ preventScroll: true });
+  $('#amount').focus({ preventScroll: true });
+  $('#amount').select();
   PrototypeMotion.openEditor(origin);
 }
 function updateEditor() {
-  const { item, draft, mode } = state.editor;
-  const result = calculateAmount(item, draft);
-  const bounds = limits(item.price);
-  $('#editor-product').innerHTML = `<div class="product-photo">${photo(item)}</div><div class="product-body"><strong class="product-price">${money(item.price)}</strong><p class="product-title" id="editor-product-title">${item.title}</p><span class="editor-discount ${result ? '' : 'placeholder'}">${result ? money(result.requestedAmount) : 'Скидка ₽'}</span></div>`;
-  $('#editor-presets').innerHTML = presetButtons(item, mode === 'preset' ? result?.amount : null, 'data-editor-amount');
+  const { item, items, draft } = state.editor;
+  const results = items.map(product => calculateAmount(product, draft));
+  const result = results[0];
+  const minimum = Math.min(...items.map(product => limits(product.price).minimum));
+  const maximum = Math.max(...items.map(product => limits(product.price).maximum));
+  if (item) $('#editor-product').innerHTML = `<div class="product-photo">${photo(item)}</div><div class="product-body"><strong class="product-price">${money(item.price)}</strong><p class="product-title" id="editor-product-title">${item.title}</p><span class="editor-discount ${result ? '' : 'placeholder'}">${result ? money(result.requestedAmount) : 'Скидка ₽'}</span></div>`;
   const input = $('#amount');
-  input.value = mode === 'custom' ? draft : '';
+  if (input.value !== draft) input.value = draft;
   amountMeasure.font = getComputedStyle(input).font;
-  input.style.width = input.value ? `${Math.ceil(amountMeasure.measureText(input.value).width) + 1}px` : '100%';
-  $('.custom-input').style.setProperty('--digits', draft.length);
-  input.placeholder = mode === 'custom' ? `от ${bounds.minimum} ₽` : 'Своя';
-  $('.custom-input').classList.toggle('active', mode === 'custom');
-  $('#amount-suffix').hidden = mode !== 'custom' || !draft;
-  const connected = state.applied.has(item.id);
+  input.style.width = draft ? `${Math.ceil(amountMeasure.measureText(draft).width) + 1}px` : '112px';
+  input.placeholder = `от ${minimum} ₽`;
+  $('#amount-suffix').hidden = !draft;
+  const slider = $('#amount-slider');
+  slider.min = minimum;
+  slider.max = maximum;
+  slider.value = draft || minimum;
+  const position = maximum === minimum ? 0 : (Number(slider.value) - minimum) / (maximum - minimum) * 100;
+  slider.style.setProperty('--position', `${position}%`);
+  slider.setAttribute('aria-valuetext', money(Number(slider.value)));
+  $('#minimum-label').textContent = money(minimum);
+  $('#maximum-label').textContent = money(maximum);
+  const connected = item && state.applied.has(item.id);
   $('#done').disabled = !result;
-  $('#done').textContent = connected ? 'Сохранить' : 'Применить скидку';
-  $('#cancel-edit').hidden = connected;
+  $('#done').textContent = item ? connected ? 'Сохранить' : 'Применить скидку' : `Применить скидку ${items.length} ${recipientWord(items.length)}`;
+  $('#cancel-edit').hidden = !item || connected;
   $('#remove-discount').hidden = !connected;
-  const limited = result?.limited === true;
+  const limited = item && result?.limited === true;
   $('#limit-tooltip').hidden = !limited;
-  $('#limit-tooltip').textContent = limited ? `${result.requestedAmount < bounds.minimum ? 'Минимальная' : 'Максимальная'}: ${money(result.amount)}` : '';
-  if (limited) input.setAttribute('aria-describedby', 'limit-tooltip');
+  $('#limit-tooltip').textContent = limited ? `${result.requestedAmount < minimum ? 'Минимальная' : 'Максимальная'}: ${money(result.amount)}` : '';
+  const lower = results.filter(value => value && value.requestedAmount < value.minimum).length;
+  const upper = results.filter(value => value && value.requestedAmount > value.maximum).length;
+  const notices = [];
+  if (lower) notices.push(`<div><p>Скидка меньше минимальной для ${lower} ${genitiveWord(lower)}</p><p>Установим ${lower === 1 ? 'ему' : 'им'} минимально возможную скидку</p></div>`);
+  if (upper) notices.push(`<div><p>Скидка больше максимальной для ${upper} ${genitiveWord(upper)}</p><p>Установим ${upper === 1 ? 'ему' : 'им'} максимально возможную скидку</p></div>`);
+  $('#bulk-notice').hidden = Boolean(item) || !notices.length;
+  $('#bulk-notice').innerHTML = `<img src="${asset('bc31a.svg')}" alt=""><div>${notices.join('')}</div>`;
+  const description = limited ? 'limit-tooltip' : !$('#bulk-notice').hidden ? 'bulk-notice' : null;
+  if (description) input.setAttribute('aria-describedby', description);
   else input.removeAttribute('aria-describedby');
 }
 function setDraft(value, caret) {
   if (!state.editor) return;
-  state.editor.mode = 'custom';
   state.editor.draft = value.replace(/\D/g, '').slice(0, 6).replace(/^0+(?=\d)/, '');
   updateEditor();
   const next = Math.min(caret ?? state.editor.draft.length, state.editor.draft.length);
@@ -197,14 +215,14 @@ function setDraft(value, caret) {
 }
 function setEditorProductVisibility() {
   document.querySelectorAll('#catalog .product').forEach(product => {
-    product.hidden = product.dataset.id === state.editor?.item.id;
+    product.hidden = product.dataset.id === state.editor?.item?.id;
   });
 }
 function closeEditor(returnToList = true) {
   if (!state.editor) return;
   const { item, scrollTop } = state.editor;
   const positions = PrototypeMotion.snapshot();
-  const row = $(`[data-id="${item.id}"]`);
+  const row = item ? $(`[data-id="${item.id}"]`) : null;
   const ghost = PrototypeMotion.clone($('#editor'), () => { if (row) row.style.visibility = ''; });
   PrototypeMotion.cancel($('#editor'));
   state.editor = null;
@@ -219,28 +237,29 @@ function closeEditor(returnToList = true) {
   (editorTrigger?.isConnected ? editorTrigger : $('#select-all')).focus({ preventScroll: true });
 }
 function commitEditor() {
-  const { item, draft } = state.editor;
-  const result = calculateAmount(item, draft);
-  if (!result) return;
-  const updating = state.applied.has(item.id);
-  state.applied.set(item.id, result);
-  state.selected.delete(item.id);
-  state.previews.delete(item.id);
+  const { item, items, draft } = state.editor;
+  if (!calculateAmount(items[0], draft)) return;
+  const updating = item && state.applied.has(item.id);
+  for (const product of items) {
+    state.applied.set(product.id, calculateAmount(product, draft));
+    state.selected.delete(product.id);
+    state.previews.delete(product.id);
+  }
   prepareSelection();
   closeEditor(false);
   render();
   $('#select-all').focus({ preventScroll: true });
-  notify(updating ? 'Изменили скидку на товар' : 'Подключили скидку на товар');
+  notify(updating ? 'Сохранили скидку на товар' : `Применили скидку ${items.length} ${recipientWord(items.length)}`);
 }
 function notify(message) {
   hideToast();
   const run = toastRun;
   const toast = $('#toast');
-  toast.textContent = message;
+  $('#toast-message').textContent = message;
   toast.hidden = false;
-  PrototypeMotion.animate(toast, [{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220 });
+  PrototypeMotion.animate(toast, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220 });
   toastTimer = setTimeout(async () => {
-    await PrototypeMotion.animate(toast, [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-6px)' }], { duration: 180, persist: true });
+    await PrototypeMotion.animate(toast, [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(6px)' }], { duration: 180, persist: true });
     if (run === toastRun) hideToast();
   }, 2500);
 }
@@ -275,13 +294,13 @@ $('#select-all').addEventListener('click', () => {
   render();
 });
 $('#options').addEventListener('click', event => {
+  if (event.target.closest('#edit-bulk')) return openEditor();
   const edit = event.target.closest('[data-edit]');
-  if (edit) return openEditor(edit.dataset.edit, true);
+  if (edit) return openEditor(edit.dataset.edit);
   const range = event.target.closest('[data-range]');
   const amount = event.target.closest('[data-amount]');
   if (range) {
-    state.range = range.dataset.range;
-    chosenItems().forEach(item => state.previews.set(item.id, rangeAmount(item)));
+    chosenItems().forEach(item => state.previews.set(item.id, optimalAmount(item)));
   }
   if (amount) {
     const item = chosenItems()[0];
@@ -289,17 +308,11 @@ $('#options').addEventListener('click', event => {
   }
   render();
 });
-$('#editor-options').addEventListener('click', event => {
-  const preset = event.target.closest('[data-editor-amount]');
-  if (preset) { state.editor.mode = 'preset'; state.editor.draft = preset.dataset.editorAmount; updateEditor(); }
+$('#editor-options').addEventListener('input', event => {
+  if (event.target.id === 'amount') setDraft(event.target.value, event.target.selectionStart);
+  if (event.target.id === 'amount-slider') setDraft(event.target.value);
 });
-$('#editor-options').addEventListener('focusin', event => {
-  if (event.target.id !== 'amount' || state.editor.mode === 'custom') return;
-  state.editor.mode = 'custom';
-  updateEditor();
-  $('#amount').select();
-});
-$('#editor-options').addEventListener('input', event => { if (event.target.id === 'amount') setDraft(event.target.value, event.target.selectionStart); });
+$('#dismiss-toast').addEventListener('click', hideToast);
 $('#done').addEventListener('click', commitEditor);
 $('#cancel-edit').addEventListener('click', () => closeEditor());
 $('#cancel-area').addEventListener('click', () => closeEditor());
@@ -319,26 +332,11 @@ $('#apply').addEventListener('click', () => {
   else chosen.map(item => [item.id, preview(item)]).forEach(([id, result]) => state.applied.set(id, result));
   chosen.forEach(item => state.previews.delete(item.id));
   state.selected.clear(); render();
-  notify(`${removing ? 'Удалили' : 'Применили'} скидку для ${chosen.length} ${chosen.length % 10 === 1 && chosen.length % 100 !== 11 ? 'товара' : 'товаров'}`);
+  notify(removing ? `Удалили скидку у ${chosen.length} ${genitiveWord(chosen.length)}` : `Применили скидку ${chosen.length} ${recipientWord(chosen.length)}`);
 });
-$('#ai-caption').addEventListener('click', () => {
-  PrototypeMotion.clearGhosts();
-  PrototypeMotion.cancel($('#info'));
-  infoTrigger = $('#ai-caption'); $('#info').hidden = false; $('#screen').inert = true; $('#close-info').focus({ preventScroll: true });
-  PrototypeMotion.openSheet($('#info'));
-});
-function closeInfo() {
-  const ghost = PrototypeMotion.clone($('#info'));
-  PrototypeMotion.cancel($('#info'));
-  $('#info').hidden = true; $('#screen').inert = false; infoTrigger?.focus({ preventScroll: true });
-  PrototypeMotion.closeSheet(ghost);
-}
-$('#close-info').addEventListener('click', closeInfo);
-$('#understood').addEventListener('click', closeInfo);
-$('#info').addEventListener('click', event => { if (event.target === $('#info')) closeInfo(); });
 document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => {
   PrototypeMotion.reset();
-  state.tab = button.dataset.tab; state.selected.clear(); state.range = state.tab === 'eligible' ? 'recommended' : 'saved'; state.previews.clear();
+  state.tab = button.dataset.tab; state.selected.clear(); state.previews.clear();
   $('#scroll').scrollTop = 0; render(false);
   PrototypeMotion.animate($('#catalog'), [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220 });
 }));
@@ -353,9 +351,8 @@ $('#category-nav').addEventListener('click', event => {
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && state.editor) { event.preventDefault(); closeEditor(); }
   else if (event.key === 'Enter' && state.editor && event.target.id === 'amount') { event.preventDefault(); commitEditor(); }
-  else if (event.key === 'Escape' && !$('#info').hidden) closeInfo();
-  if (event.key === 'Tab' && (state.editor || !$('#info').hidden)) {
-    const container = state.editor ? $('#editor') : $('#info');
+  if (event.key === 'Tab' && state.editor) {
+    const container = $('#editor');
     const controls = [...container.querySelectorAll('button:not(:disabled),input')].filter(element => element.offsetParent !== null);
     const edge = event.shiftKey ? controls[0] : controls.at(-1);
     if (event.target === edge) { event.preventDefault(); controls[event.shiftKey ? controls.length - 1 : 0].focus(); }
@@ -368,7 +365,7 @@ $('#keyboard').addEventListener('click', event => {
   const key = event.target.closest('[data-key]');
   if (!key || !state.editor) return;
   const input = $('#amount');
-  const draft = state.editor.mode === 'custom' ? state.editor.draft : '';
+  const draft = state.editor.draft;
   const start = input.selectionStart ?? draft.length;
   const end = input.selectionEnd ?? start;
   const deleting = key.dataset.key === 'delete';
@@ -393,7 +390,6 @@ function enterDelivery() {
   PrototypeMotion.reset();
   state.tab = 'eligible';
   state.selected.clear();
-  state.range = 'recommended';
   state.previews.clear();
   $('#scroll').scrollTop = 0;
   render(false);
@@ -403,7 +399,6 @@ function enterDelivery() {
 
 function leaveDelivery() {
   if (state.editor) closeEditor();
-  if (!$('#info').hidden) closeInfo();
   hideToast();
   PrototypeMotion.reset();
   PrototypeMotion.animate($('#offers-screen'), [{ opacity: 0, transform: 'translateX(-10px)' }, { opacity: 1, transform: 'translateX(0)' }], { duration: 240 });
@@ -431,7 +426,7 @@ async function start() {
   try {
     render(false);
     const paths = new Set([...document.querySelectorAll('img')].map(image => image.getAttribute('src')));
-    ['86592.svg', 'c8762.svg', 'a31ca.svg'].forEach(name => paths.add(asset(name)));
+    ['86592.svg', '49135.svg', '54616.svg', '9befd.svg', 'bc31a.svg', '3c5f8.svg'].forEach(name => paths.add(asset(name)));
     paths.add('assets/checkbox-inactive.svg');
     [previousItem, ...allItems].forEach(item => item.images.forEach(image => paths.add(asset(image))));
     await Promise.race([

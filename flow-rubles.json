@@ -1,15 +1,15 @@
 {
   "source": {
     "fileKey": "OaolVHaabrE8Nv9upVA0wD",
-    "section": "3542:50077",
+    "section": "3573:111220",
     "screens": [
-      "3544:54726",
-      "3544:55785",
-      "3544:56476",
-      "3544:57445",
-      "3544:61209",
-      "3544:58360",
-      "3544:59897"
+      "3570:98970",
+      "3573:109893",
+      "3555:93096",
+      "3573:108165",
+      "3555:93753",
+      "3573:108987",
+      "3573:109648"
     ],
     "limitTooltip": "3550:63012"
   },
@@ -23,36 +23,20 @@
     "selected": 0,
     "eligible": 10,
     "applied": 1,
-    "mode": "recommended",
+    "mode": "optimal",
     "persistence": "memory only; reload resets"
   },
   "bulk": {
     "minimumSelection": 2,
-    "ranges": [
-      [
-        100,
-        600
-      ],
-      [
-        600,
-        1200
-      ]
+    "options": [
+      "Оптимальная",
+      "Своя"
     ],
-    "recommendedAmounts": [
-      200,
-      300,
-      400,
-      150,
-      500,
-      500,
-      400,
-      600,
-      600,
-      400
-    ],
-    "higherRangeRule": "map base amount position in 100..600 to 600..1200; round nearest 50; clamp to product limits",
-    "unavailableRange": "clamp each amount to product bounds; actual item amounts and range labels; no lower notice",
-    "labels": "active range uses retained per-item previews; alternative range shows results of explicitly choosing that range"
+    "optimal": "round((minimum + maximum) / 2), separately for every product",
+    "custom": "one requested whole-ruble amount; clamp independently to each selected product on confirmation",
+    "initialCustom": "median preview amount clamped to common intersection when nonempty",
+    "slider": "linear from lowest minimum to highest maximum among selected products",
+    "notice": "actual under-minimum and over-maximum counts; both notices if needed; no blocking error"
   },
   "single": {
     "presets": [
@@ -61,15 +45,16 @@
       300
     ],
     "bounds": "clamp presets to actual item limits and remove duplicate amounts",
-    "custom": "0..999999 whole rubles; empty disables Apply; out-of-bounds including zero remain applicable and clamp on confirmation"
+    "custom": "0..999999 whole rubles; empty disables Apply; out-of-bounds including zero remain applicable and clamp on confirmation",
+    "default": "first available preset for newly selected item; retain previous preview on reselection"
   },
   "individualEditor": {
     "open": "pencil on item discount or single-selection custom chip; temporarily extract item from background list into sheet",
     "preview": "same product identity and price as catalog; exact amount matching preset/input and limits",
-    "apply": "save immediately; remove item from eligible list and selection; retain other selected items and range",
+    "apply": "save immediately; remove item from eligible list and selection; retain other selected amounts",
     "cancel": "discard draft and keep previous amount; Escape or backdrop also cancel; restore original item row, selection and scroll",
     "delete": "explicit separate action for existing discounts",
-    "keyboard": "embedded numeric keypad; no group slider",
+    "keyboard": "embedded numeric keypad and linear slider with actual product bounds",
     "empty": "gray discount placeholder before input; primary text color for valid numeric preview",
     "buttons": {
       "new": [
@@ -84,8 +69,8 @@
     "limits": "tooltip above input: minimum or maximum; preserve typed value in preview; Apply and Save clamp to original product bounds without errors",
     "clear": "no clear-cross buttons; use keyboard deletion"
   },
-  "bulkApply": "save chosen results and clear selection; retain current tab and scroll; toast at top below navigation; hide eligible tab and show discounted only if none eligible remain",
-  "savedDiscounts": "select saved items without changing amounts; individual editing and removal available; bulk range replaces chosen saved amounts only after Apply",
+  "bulkApply": "save results, clear selection, retain current tab and scroll; bottom dismissible toast; hide eligible tab and switch only when no eligible remain",
+  "savedDiscounts": "select saved items without changing amounts; save/delete individual discount; explicit optimal or custom replaces amounts after confirmation",
   "limitsSource": "percent/discount-model.js; unchanged",
   "realData": "all counts derive from inventory, applied map and selection; landing inventory total11; prices and preview values share catalog source",
   "fonts": [
@@ -94,9 +79,8 @@
     "Avito Sans Text 700"
   ],
   "limitations": [
-    "deterministic recommendation demo; no AI backend",
-    "physical phones and Safari untested",
-    "public browser blocked previously; publication verified with hosting MCP"
+    "synthetic demo products; no backend persistence",
+    "physical phones and Safari untested"
   ],
   "selection": "preserve per-item previews when selected, deselected or reselected; never recalculate existing selected amounts based on count"
 }
