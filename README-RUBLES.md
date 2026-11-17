@@ -1,6 +1,6 @@
 # Скидка на доставку: диапазоны и отдельные товары
 
-GitHub Pages: https://serj20001.github.io/delivery-discount-prototype/rubles/
+GitHub Pages: https://serj20001.github.io/delivery-discount-prototype-v2/rubles/
 
 Актуальный флоу — Figma `OaolVHaabrE8Nv9upVA0wD`, секция `3542:50077`. Основное направление — рублёвый вариант. Процентный прототип сохранён как прежняя версия.
 
