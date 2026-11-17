@@ -2145,7 +2145,7 @@
       "file": "assets/current/9befd.svg",
       "path": "rubles/assets/current/9befd.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 534,
       "sha256": "4d9d9026f55b38ce8f664af1819316dde3003c237f96884b9eff912d17f8b6fd",
@@ -2162,7 +2162,7 @@
         21
       ],
       "scale": 1,
-      "role": "inverse unchecked checkbox",
+      "role": "retired inverse checkbox",
       "sourceNodes": [
         "3573:111193"
       ],

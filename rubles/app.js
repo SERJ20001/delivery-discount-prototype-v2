@@ -84,7 +84,6 @@ function render(animate = true) {
   $('#select-all').disabled = !visibleItems().length;
   $('#select-all').setAttribute('aria-pressed', String(chosen.length > 0));
   $('#select-all').setAttribute('aria-label', chosen.length === visibleItems().length ? 'Снять выбор со всех товаров' : 'Выбрать все товары');
-  $('#select-all').querySelector('img').src = chosen.length > 0 ? asset('54616.svg') : asset('9befd.svg');
   if (chosen.length > 1) {
     const optimal = chosen.every(item => preview(item).amount === optimalAmount(item).amount);
     $('#options').innerHTML = `<button class="chip ${optimal ? 'active' : ''}" data-range="optimal" aria-pressed="${optimal}">Оптимальная</button><button class="chip custom-option" id="edit-bulk">Своя<img src="${asset('49135.svg')}" alt=""></button>`;
@@ -125,11 +124,18 @@ function updateCategoryNavigation() {
     if (selected && changed) button.parentElement.scrollTo({ left: button.offsetLeft - 68, behavior: PrototypeMotion.scrollBehavior });
   });
 }
-function prepareSelection() {
+function prepareSelection(previousSelection) {
   const chosen = chosenItems();
+  const single = chosen.length === 1;
   for (const item of chosen) {
-    if (state.previews.has(item.id)) continue;
-    const result = state.applied.get(item.id) ?? (chosen.length === 1 ? calculateAmount(item, singlePresets(item)[0]) : optimalAmount(item));
+    const saved = state.applied.get(item.id);
+    const current = state.previews.get(item.id);
+    const useSinglePreset = single && !saved && previousSelection &&
+      (!previousSelection.has(item.id) || current?.fromOptimal);
+    if (current && !useSinglePreset) continue;
+    const result = saved ?? (single
+      ? calculateAmount(item, singlePresets(item)[0])
+      : { ...optimalAmount(item), fromOptimal: true });
     state.previews.set(item.id, result);
   }
 }
@@ -275,22 +281,25 @@ $('#catalog').addEventListener('click', event => {
   if (edit) return openEditor(edit.dataset.edit);
   const product = event.target.closest('[data-select]');
   const category = event.target.closest('[data-category]');
+  if (!product && !category) return;
   PrototypeMotion.clearGhosts();
+  const previousSelection = new Set(state.selected);
   if (product) state.selected.has(product.dataset.select) ? state.selected.delete(product.dataset.select) : state.selected.add(product.dataset.select);
   else if (category) {
     const items = groupItems(Number(category.dataset.category));
     const checked = items.every(item => state.selected.has(item.id));
     items.forEach(item => checked ? state.selected.delete(item.id) : state.selected.add(item.id));
   }
-  prepareSelection();
+  prepareSelection(previousSelection);
   render();
   if (product && state.selected.has(product.dataset.select)) PrototypeMotion.keepInView(product.dataset.select);
 });
 $('#select-all').addEventListener('click', () => {
   PrototypeMotion.clearGhosts();
   const items = visibleItems();
+  const previousSelection = state.selected;
   state.selected = new Set(chosenItems().length === items.length ? [] : items.map(item => item.id));
-  prepareSelection();
+  prepareSelection(previousSelection);
   render();
 });
 $('#options').addEventListener('click', event => {
@@ -300,7 +309,7 @@ $('#options').addEventListener('click', event => {
   const range = event.target.closest('[data-range]');
   const amount = event.target.closest('[data-amount]');
   if (range) {
-    chosenItems().forEach(item => state.previews.set(item.id, optimalAmount(item)));
+    chosenItems().forEach(item => state.previews.set(item.id, { ...optimalAmount(item), fromOptimal: true }));
   }
   if (amount) {
     const item = chosenItems()[0];
@@ -426,7 +435,7 @@ async function start() {
   try {
     render(false);
     const paths = new Set([...document.querySelectorAll('img')].map(image => image.getAttribute('src')));
-    ['86592.svg', '49135.svg', '54616.svg', '9befd.svg', 'bc31a.svg', '3c5f8.svg'].forEach(name => paths.add(asset(name)));
+    ['86592.svg', '49135.svg', 'bc31a.svg', '3c5f8.svg'].forEach(name => paths.add(asset(name)));
     paths.add('assets/checkbox-inactive.svg');
     [previousItem, ...allItems].forEach(item => item.images.forEach(image => paths.add(asset(image))));
     await Promise.race([
