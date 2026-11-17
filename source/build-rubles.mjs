@@ -51,12 +51,13 @@ const newAssets = [
   ['9befd.svg', '3573:111193', [21, 21], 'retired inverse checkbox'],
   ['49135.svg', '3570:98253', [14, 16], 'custom amount edit icon'],
   ['bc31a.svg', '3570:96506', [14, 20], 'discount limits notice tag'],
-  ['3c5f8.svg', '3573:111201', [14, 20], 'toast close icon']
+  ['3c5f8.svg', '3573:111201', [14, 20], 'toast close icon'],
+  ['5b3cf.svg', '2043:154632', [32, 18], 'limit switch on', '3574:114010']
 ];
-for (const [name, nodeId, dimensions, role] of newAssets) {
+for (const [name, nodeId, dimensions, role, designContext = '3573:111220'] of newAssets) {
   const file = 'assets/current/' + name;
   const bytes = await readFile(path.join(output, file));
-  const entry = { id: name.split('.')[0], file, path: 'rubles/' + file, kind: 'image', used: true, review: 'agent-checked', sizeBytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), logical: dimensions, physical: dimensions, dimensions, scale: 1, role, sourceNodes: [nodeId], source: { fileKey: 'OaolVHaabrE8Nv9upVA0wD', nodeId }, designContext: '3573:111220' };
+  const entry = { id: name.split('.')[0], file, path: 'rubles/' + file, kind: 'image', used: true, review: 'agent-checked', sizeBytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex'), logical: dimensions, physical: dimensions, dimensions, scale: 1, role, sourceNodes: [nodeId], source: { fileKey: 'OaolVHaabrE8Nv9upVA0wD', nodeId }, designContext };
   const index = manifest.assets.findIndex(asset => asset.file === file);
   if (index < 0) manifest.assets.push(entry);
   else manifest.assets[index] = entry;

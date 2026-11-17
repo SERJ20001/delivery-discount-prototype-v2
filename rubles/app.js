@@ -2,7 +2,8 @@ const { limits } = DiscountModel;
 const asset = name => `assets/current/${name}`;
 const allItems = categories.flatMap(category => category.items);
 const inventory = [...allItems, previousItem];
-const state = { tab: 'eligible', selected: new Set(), applied: new Map([[previousItem.id, calculateAmount(previousItem, 300)]]), previews: new Map(), editor: null };
+const state = { tab: 'eligible', selected: new Set(), applied: new Map([[previousItem.id, calculateAmount(previousItem, 300)]]), previews: new Map(), editor: null, groups: [], activeGroup: null };
+const variant = EntryScreen.variant;
 const money = value => `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const word = count => count % 10 === 1 && count % 100 !== 11 ? 'товар' : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? 'товара' : 'товаров';
 const $ = selector => document.querySelector(selector);
@@ -55,6 +56,46 @@ function presetButtons(item, selectedAmount, attribute) {
   return singlePresets(item).map(amount => `<button class="chip ${amount === selectedAmount ? 'active' : ''}" ${attribute}="${amount}" aria-pressed="${amount === selectedAmount}">${money(amount)}</button>`).join('');
 }
 
+const groupLabels = { minimum: 'Минимальная', optimal: 'Оптимальная', maximum: 'Максимальная' };
+
+function groupItemsSelected(group) {
+  return chosenItems().filter(item => group.ids.includes(item.id));
+}
+
+function renderDiscountGroups(chosen) {
+  const container = $('#discount-groups');
+  state.groups = state.groups.filter(group => groupItemsSelected(group).length > 0);
+  const show = chosen.length > 1 && state.groups.length > 0;
+  container.hidden = !show;
+  $('#select-all').hidden = show;
+  if (!show) {
+    state.groups = [];
+    state.activeGroup = null;
+    return null;
+  }
+  const ungrouped = chosen.filter(item => state.groups.every(group => !group.ids.includes(item.id)));
+  if (ungrouped.length) state.groups.push({ kind: 'custom', mode: null, ids: ungrouped.map(item => item.id) });
+  if (!state.groups.includes(state.activeGroup)) state.activeGroup = state.groups[0];
+  container.innerHTML = state.groups.map((group, index) => {
+    const count = groupItemsSelected(group).length;
+    const active = group === state.activeGroup;
+    const label = group.mode === 'custom' ? money(group.amount) : groupLabels[group.mode];
+    return `<button class="count-pill group-pill" data-group-index="${index}" aria-pressed="${active}"><img src="${asset(active ? '54616.svg' : 'a4747.svg')}" alt=""><span>${count} ${word(count)}${label ? ` · ${label}` : ''}</span></button>`;
+  }).join('');
+  const active = container.querySelector('[aria-pressed="true"]');
+  if (active.offsetLeft < container.scrollLeft || active.offsetLeft + active.offsetWidth > container.scrollLeft + container.clientWidth) {
+    container.scrollLeft = active.offsetLeft - 12;
+  }
+  return state.activeGroup;
+}
+
+function groupOptions(group) {
+  const modes = group.kind === 'upper' ? ['maximum', 'optimal'] : ['minimum', 'optimal'];
+  const options = modes.map(mode => `<button class="chip ${group.mode === mode ? 'active' : ''}" data-group-preset="${mode}" aria-pressed="${group.mode === mode}">${groupLabels[mode]}</button>`);
+  if (group.kind === 'custom') options.push(`<button class="chip custom-option ${group.mode === 'custom' ? 'active' : ''}" id="edit-bulk">${group.amount !== undefined ? money(group.amount) : 'Своя'}<img src="${asset('49135.svg')}" alt=""></button>`);
+  return options.join('');
+}
+
 function render(animate = true) {
   const positions = animate ? PrototypeMotion.snapshot() : new Map();
   const selection = animate ? PrototypeMotion.captureSelection(chosenItems().length > 0) : null;
@@ -84,7 +125,10 @@ function render(animate = true) {
   $('#select-all').disabled = !visibleItems().length;
   $('#select-all').setAttribute('aria-pressed', String(chosen.length > 0));
   $('#select-all').setAttribute('aria-label', chosen.length === visibleItems().length ? 'Снять выбор со всех товаров' : 'Выбрать все товары');
-  if (chosen.length > 1) {
+  const activeGroup = renderDiscountGroups(chosen);
+  if (activeGroup) {
+    $('#options').innerHTML = groupOptions(activeGroup);
+  } else if (chosen.length > 1) {
     const optimal = chosen.every(item => preview(item).amount === optimalAmount(item).amount);
     $('#options').innerHTML = `<button class="chip ${optimal ? 'active' : ''}" data-range="optimal" aria-pressed="${optimal}">Оптимальная</button><button class="chip custom-option" id="edit-bulk">Своя<img src="${asset('49135.svg')}" alt=""></button>`;
   } else if (chosen.length === 1) {
@@ -93,7 +137,7 @@ function render(animate = true) {
     const custom = !singlePresets(item).includes(amount);
     $('#options').innerHTML = presetButtons(item, amount, 'data-amount') + `<button class="chip custom-option ${custom ? 'active' : ''}" id="edit" data-edit="${item.id}">Своя<img src="${asset('49135.svg')}" alt=""></button>`;
   } else $('#options').innerHTML = '';
-  const removing = discounted && chosen.length > 0 && chosen.every(item => preview(item).amount === state.applied.get(item.id).amount);
+  const removing = isRemovingSelection(chosen);
   $('#apply').textContent = removing ? 'Удалить скидку' : 'Применить';
   $('#apply').classList.toggle('secondary', removing);
   $('#apply').disabled = chosen.length === 0;
@@ -142,7 +186,8 @@ function prepareSelection(previousSelection) {
 
 function openEditor(itemId = null) {
   const item = itemId ? inventory.find(product => product.id === itemId) : null;
-  const items = item ? [item] : chosenItems();
+  const group = item ? null : state.activeGroup;
+  const items = item ? [item] : group ? groupItemsSelected(group) : chosenItems();
   if (!items.length) return;
   PrototypeMotion.clearGhosts();
   PrototypeMotion.cancel($('#editor'));
@@ -154,8 +199,8 @@ function openEditor(itemId = null) {
   const commonMaximum = Math.min(...items.map(product => limits(product.price).maximum));
   const amounts = items.map(product => preview(product)?.amount ?? optimalAmount(product).amount).sort((a, b) => a - b);
   const middle = amounts[Math.floor(amounts.length / 2)];
-  const initial = item ? amounts[0] : commonMinimum <= commonMaximum ? Math.max(commonMinimum, Math.min(commonMaximum, middle)) : middle;
-  state.editor = { item, items: [...items], draft: String(initial), scrollTop: $('#scroll').scrollTop };
+  const initial = group?.amount ?? (item ? amounts[0] : commonMinimum <= commonMaximum ? Math.max(commonMinimum, Math.min(commonMaximum, middle)) : middle);
+  state.editor = { item, items: [...items], group, draft: String(initial), clamp: { lower: true, upper: true }, scrollTop: $('#scroll').scrollTop };
   hideToast();
   setEditorProductVisibility();
   PrototypeMotion.layout(positions);
@@ -171,10 +216,21 @@ function openEditor(itemId = null) {
   $('#amount').select();
   PrototypeMotion.openEditor(origin);
 }
+function editorResults() {
+  const { items, draft, clamp } = state.editor;
+  return items.map(item => {
+    const result = calculateAmount(item, draft);
+    let limit = null;
+    if (result?.requestedAmount < result?.minimum) limit = 'lower';
+    if (result?.requestedAmount > result?.maximum) limit = 'upper';
+    return { item, result, limit, include: Boolean(result && (!limit || clamp[limit])) };
+  });
+}
+
 function updateEditor() {
   const { item, items, draft } = state.editor;
-  const results = items.map(product => calculateAmount(product, draft));
-  const result = results[0];
+  const results = editorResults();
+  const result = results[0].result;
   const minimum = Math.min(...items.map(product => limits(product.price).minimum));
   const maximum = Math.max(...items.map(product => limits(product.price).maximum));
   if (item) $('#editor-product').innerHTML = `<div class="product-photo">${photo(item)}</div><div class="product-body"><strong class="product-price">${money(item.price)}</strong><p class="product-title" id="editor-product-title">${item.title}</p><span class="editor-discount ${result ? '' : 'placeholder'}">${result ? money(result.requestedAmount) : 'Скидка ₽'}</span></div>`;
@@ -194,23 +250,39 @@ function updateEditor() {
   $('#minimum-label').textContent = money(minimum);
   $('#maximum-label').textContent = money(maximum);
   const connected = item && state.applied.has(item.id);
-  $('#done').disabled = !result;
-  $('#done').textContent = item ? connected ? 'Сохранить' : 'Применить скидку' : `Применить скидку ${items.length} ${recipientWord(items.length)}`;
+  const included = results.filter(entry => entry.include).length;
+  $('#done').disabled = included === 0;
+  $('#done').textContent = item ? connected ? 'Сохранить' : 'Применить скидку'
+    : variant === 3 ? 'Готово' : included ? `Применить скидку ${included} ${recipientWord(included)}` : 'Применить скидку';
   $('#cancel-edit').hidden = !item || connected;
   $('#remove-discount').hidden = !connected;
   const limited = item && result?.limited === true;
   $('#limit-tooltip').hidden = !limited;
   $('#limit-tooltip').textContent = limited ? `${result.requestedAmount < minimum ? 'Минимальная' : 'Максимальная'}: ${money(result.amount)}` : '';
-  const lower = results.filter(value => value && value.requestedAmount < value.minimum).length;
-  const upper = results.filter(value => value && value.requestedAmount > value.maximum).length;
-  const notices = [];
-  if (lower) notices.push(`<div><p>Скидка меньше минимальной для ${lower} ${genitiveWord(lower)}</p><p>Установим ${lower === 1 ? 'ему' : 'им'} минимально возможную скидку</p></div>`);
-  if (upper) notices.push(`<div><p>Скидка больше максимальной для ${upper} ${genitiveWord(upper)}</p><p>Установим ${upper === 1 ? 'ему' : 'им'} максимально возможную скидку</p></div>`);
-  $('#bulk-notice').hidden = Boolean(item) || !notices.length;
-  $('#bulk-notice').innerHTML = `<img src="${asset('bc31a.svg')}" alt=""><div>${notices.join('')}</div>`;
+  renderLimitNotice(item ? [] : results);
   const description = limited ? 'limit-tooltip' : !$('#bulk-notice').hidden ? 'bulk-notice' : null;
   if (description) input.setAttribute('aria-describedby', description);
   else input.removeAttribute('aria-describedby');
+}
+
+function renderLimitNotice(results) {
+  const notice = $('#bulk-notice');
+  const interactive = variant !== 1;
+  const notices = ['lower', 'upper'].flatMap(limit => {
+    const count = results.filter(entry => entry.limit === limit).length;
+    if (!count) return [];
+    const lower = limit === 'lower';
+    const label = `Скидка ${lower ? 'меньше минимальной' : 'больше максимальной'} для ${count} ${genitiveWord(count)}`;
+    const pronoun = count === 1 ? 'ему' : 'им';
+    const amount = lower ? 'минимальную' : 'максимальную';
+    if (!interactive) return [`<div role="status"><p>${label}</p><p>Установим ${pronoun} ${lower ? 'минимально' : 'максимально'} возможную скидку</p></div>`];
+    const checked = state.editor.clamp[limit];
+    const action = `Установим ${pronoun} ${amount}`;
+    return [`<div><p role="status">${label}</p><div class="limit-switch-row"><span>${action}</span><button type="button" class="limit-switch" role="switch" aria-checked="${checked}" aria-label="${action}" data-limit="${limit}"><img src="${asset('5b3cf.svg')}" alt=""></button></div></div>`];
+  });
+  notice.classList.toggle('limit-notice-interactive', interactive);
+  notice.hidden = notices.length === 0;
+  notice.innerHTML = `${interactive ? '' : `<img src="${asset('bc31a.svg')}" alt="">`}<div>${notices.join('')}</div>`;
 }
 function setDraft(value, caret) {
   if (!state.editor) return;
@@ -243,19 +315,43 @@ function closeEditor(returnToList = true) {
   (editorTrigger?.isConnected ? editorTrigger : $('#select-all')).focus({ preventScroll: true });
 }
 function commitEditor() {
-  const { item, items, draft } = state.editor;
-  if (!calculateAmount(items[0], draft)) return;
+  const { item } = state.editor;
+  const results = editorResults();
+  const included = results.filter(entry => entry.include);
+  if (!included.length) return;
+  if (!item && variant === 3) {
+    stageBulkDiscount(results);
+    return;
+  }
   const updating = item && state.applied.has(item.id);
-  for (const product of items) {
-    state.applied.set(product.id, calculateAmount(product, draft));
+  for (const { item: product, result } of included) {
+    state.applied.set(product.id, result);
     state.selected.delete(product.id);
     state.previews.delete(product.id);
   }
+  for (const entry of results) if (!entry.include) state.selected.delete(entry.item.id);
   prepareSelection();
   closeEditor(false);
   render();
-  $('#select-all').focus({ preventScroll: true });
-  notify(updating ? 'Сохранили скидку на товар' : `Применили скидку ${items.length} ${recipientWord(items.length)}`);
+  ($('#discount-groups [aria-pressed="true"]') ?? $('#select-all')).focus({ preventScroll: true });
+  notify(updating ? 'Сохранили скидку на товар' : `Применили скидку ${included.length} ${recipientWord(included.length)}`);
+}
+
+function stageBulkDiscount(results) {
+  const { group, draft } = state.editor;
+  const groups = [];
+  for (const [kind, mode, limit] of [['custom', 'custom', null], ['lower', 'minimum', 'lower'], ['upper', 'maximum', 'upper']]) {
+    const matches = results.filter(entry => entry.include && entry.limit === limit);
+    if (!matches.length) continue;
+    groups.push({ kind, mode, amount: kind === 'custom' ? Number(draft) : undefined, ids: matches.map(entry => entry.item.id) });
+    for (const { item, result } of matches) state.previews.set(item.id, result);
+  }
+  for (const entry of results) if (!entry.include) state.selected.delete(entry.item.id);
+  state.groups = state.groups.filter(existing => existing !== group).concat(groups);
+  state.activeGroup = groups[0];
+  closeEditor();
+  render();
+  ($('#discount-groups [aria-pressed="true"]') ?? $('#apply')).focus({ preventScroll: true });
 }
 function notify(message) {
   hideToast();
@@ -308,6 +404,18 @@ $('#options').addEventListener('click', event => {
   if (edit) return openEditor(edit.dataset.edit);
   const range = event.target.closest('[data-range]');
   const amount = event.target.closest('[data-amount]');
+  const groupPreset = event.target.closest('[data-group-preset]');
+  if (groupPreset && state.activeGroup) {
+    const { groupPreset: mode } = groupPreset.dataset;
+    state.activeGroup.mode = mode;
+    for (const item of groupItemsSelected(state.activeGroup)) {
+      const bounds = limits(item.price);
+      const result = mode === 'optimal'
+        ? { ...optimalAmount(item), fromOptimal: true }
+        : calculateAmount(item, bounds[mode]);
+      state.previews.set(item.id, result);
+    }
+  }
   if (range) {
     chosenItems().forEach(item => state.previews.set(item.id, { ...optimalAmount(item), fromOptimal: true }));
   }
@@ -316,6 +424,22 @@ $('#options').addEventListener('click', event => {
     state.previews.set(item.id, calculateAmount(item, amount.dataset.amount));
   }
   render();
+  if (groupPreset) $(`[data-group-preset="${groupPreset.dataset.groupPreset}"]`)?.focus({ preventScroll: true });
+});
+$('#discount-groups').addEventListener('click', event => {
+  const button = event.target.closest('[data-group-index]');
+  if (!button) return;
+  state.activeGroup = state.groups[Number(button.dataset.groupIndex)];
+  render();
+  $('#discount-groups [aria-pressed="true"]')?.focus({ preventScroll: true });
+});
+$('#bulk-notice').addEventListener('click', event => {
+  const button = event.target.closest('[data-limit]');
+  if (!state.editor || !button) return;
+  const limit = button.dataset.limit;
+  state.editor.clamp[limit] = !state.editor.clamp[limit];
+  updateEditor();
+  $(`#bulk-notice [data-limit="${limit}"]`)?.focus({ preventScroll: true });
 });
 $('#editor-options').addEventListener('input', event => {
   if (event.target.id === 'amount') setDraft(event.target.value, event.target.selectionStart);
@@ -330,13 +454,17 @@ $('#remove-discount').addEventListener('click', () => {
   state.selected.delete(state.editor.item.id);
   state.previews.delete(state.editor.item.id);
   closeEditor(false); render();
-  $('#select-all').focus({ preventScroll: true });
+  ($('#discount-groups [aria-pressed="true"]') ?? $('#select-all')).focus({ preventScroll: true });
   notify('Удалили скидку на товар');
 });
+function isRemovingSelection(chosen) {
+  return state.tab === 'discounted' && !state.groups.length && chosen.length > 0 &&
+    chosen.every(item => preview(item).amount === state.applied.get(item.id).amount);
+}
 $('#apply').addEventListener('click', () => {
   const chosen = chosenItems();
   if (!chosen.length) return;
-  const removing = state.tab === 'discounted' && chosen.every(item => preview(item).amount === state.applied.get(item.id).amount);
+  const removing = isRemovingSelection(chosen);
   if (removing) chosen.forEach(item => state.applied.delete(item.id));
   else chosen.map(item => [item.id, preview(item)]).forEach(([id, result]) => state.applied.set(id, result));
   chosen.forEach(item => state.previews.delete(item.id));
@@ -436,6 +564,7 @@ async function start() {
     render(false);
     const paths = new Set([...document.querySelectorAll('img')].map(image => image.getAttribute('src')));
     ['86592.svg', '49135.svg', 'bc31a.svg', '3c5f8.svg'].forEach(name => paths.add(asset(name)));
+    if (variant !== 1) paths.add(asset('5b3cf.svg'));
     paths.add('assets/checkbox-inactive.svg');
     [previousItem, ...allItems].forEach(item => item.images.forEach(image => paths.add(asset(image))));
     await Promise.race([

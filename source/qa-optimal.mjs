@@ -196,6 +196,57 @@ try {
   await standalone.locator('#amount').fill('100');
   await standalone.locator('#done').click();
   check('Standalone supports bulk apply without network', await text(standalone, '#discounted-count') === '11' && external.length === 0);
+  const variants = await context.newPage();
+  const openVariant = async number => {
+    await variants.goto(origin);
+    await variants.locator(`[data-variant="${number}"]`).click();
+    await variants.locator('#loading').waitFor({ state: 'hidden' });
+    check(`Variant ${number} opens from the start and is selected`, await variants.locator(`[data-variant="${number}"]`).getAttribute('aria-current') === 'page');
+    await variants.locator('#open-delivery').click();
+    await variants.locator('#select-all').click();
+    await variants.locator('#edit-bulk').click();
+  };
+  await openVariant(2);
+  await variants.locator('#amount').fill('100');
+  const lower = variants.getByRole('switch', { name: 'Установим им минимальную' });
+  check('Variant 2 applies limits by default', await lower.getAttribute('aria-checked') === 'true');
+  await shot(variants, 'variant-2-notice');
+  await lower.click();
+  check('Variant 2 counts only included items in the action', await text(variants, '#done') === 'Применить скидку 6 товарам');
+  await variants.locator('#amount').fill('0');
+  check('Variant 2 blocks applying to an empty group', await variants.locator('#done').isDisabled());
+  await variants.locator('#amount').fill('100');
+  await variants.locator('#done').click();
+  check('Variant 2 leaves excluded items eligible', await text(variants, '#eligible-count') === '4' && await text(variants, '#discounted-count') === '7' && await variants.locator('[data-id="iphone"]').isVisible());
+  check('Variant 2 success toast counts the applied group', await text(variants, '#toast-message') === 'Применили скидку 6 товарам');
+  await openVariant(3);
+  await variants.setViewportSize({ width: 375, height: 667 });
+  await variants.locator('#amount').fill('100');
+  check('Variant 3 prepares instead of applying from the editor', await text(variants, '#done') === 'Готово');
+  await shot(variants, 'variant-3-notice');
+  await variants.locator('#done').click();
+  check('Variant 3 stages separate custom and minimum groups without changing applied counts', await text(variants, '#discounted-count') === '1' &&
+    await text(variants, '[data-group-index="0"]') === '6 товаров · 100 ₽' && await text(variants, '[data-group-index="1"]') === '4 товара · Минимальная');
+  await shot(variants, 'variant-3-custom-group');
+  await variants.locator('[data-group-index="1"]').click();
+  await shot(variants, 'variant-3-minimum-group');
+  await variants.locator('[data-group-preset="optimal"]').click();
+  check('Variant 3 presets change only the active group', await text(variants, '[data-group-index="1"]') === '4 товара · Оптимальная' &&
+    await text(variants, '.discount-chip[data-edit="ocean"]') === '630 ₽' && await text(variants, '.discount-chip[data-edit="salomon"]') === '100 ₽');
+  await variants.locator('[data-group-index="0"]').click();
+  await variants.locator('#edit-bulk').click();
+  await variants.locator('#amount').fill('200');
+  await variants.keyboard.press('Escape');
+  check('Variant 3 discards a canceled group edit', await text(variants, '[data-group-index="0"]') === '6 товаров · 100 ₽');
+  await variants.locator('#apply').click();
+  check('Variant 3 applies both groups together', await text(variants, '#discounted-count') === '11' &&
+    await text(variants, '.discount-chip[data-edit="ocean"]') === '630 ₽' && await text(variants, '.discount-chip[data-edit="salomon"]') === '100 ₽');
+  await openVariant(3);
+  await variants.locator('#amount').fill('1000');
+  check('Variant 3 offers a toggle for amounts above the maximum', await variants.getByRole('switch', { name: 'Установим им максимальную' }).isVisible());
+  await variants.getByRole('switch', { name: 'Установим им максимальную' }).click();
+  await variants.locator('#done').click();
+  check('Variant 3 excludes the disabled group from the draft', await variants.locator('[data-group-index]').count() === 1 && await text(variants, '[data-group-index="0"]') === '7 товаров · 1 000 ₽');
   check('No browser errors or missing assets', errors.length === 0);
   await writeFile(`${output}/report.json`, JSON.stringify({ origin, revision: build.revision, checks, errors }, null, 2));
   console.log(JSON.stringify({ passed: checks.length, errors, revision: build.revision }));

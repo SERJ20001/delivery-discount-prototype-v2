@@ -2267,6 +2267,38 @@
         "nodeId": "3573:111201"
       },
       "designContext": "3573:111220"
+    },
+    {
+      "id": "5b3cf",
+      "file": "assets/current/5b3cf.svg",
+      "path": "rubles/assets/current/5b3cf.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 581,
+      "sha256": "95241359451959e4e00d49455a8a05a3861c21f4497f52eda51dcefdce8ae8d0",
+      "logical": [
+        32,
+        18
+      ],
+      "physical": [
+        32,
+        18
+      ],
+      "dimensions": [
+        32,
+        18
+      ],
+      "scale": 1,
+      "role": "limit switch on",
+      "sourceNodes": [
+        "2043:154632"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "2043:154632"
+      },
+      "designContext": "3574:114010"
     }
   ],
   "regions": [

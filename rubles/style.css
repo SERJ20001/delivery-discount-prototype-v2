@@ -36,6 +36,17 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;-webkit-t
 #loading{position:fixed;z-index:100;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#606060;color:white;font-size:15px;line-height:20px}#retry{margin-top:16px;padding:12px 20px;border-radius:12px}
 @media(max-width:600px){html,body{background:#606060}}
 .count-check{position:relative;flex:none;width:21px;height:21px}
+.discount-groups{position:relative;display:flex;gap:6px;align-items:center;max-width:100%;overflow-x:auto;scrollbar-width:none;margin:-12px 0;padding:12px 16px;pointer-events:auto}
+.discount-groups .group-pill{flex:none;white-space:nowrap}
+.discount-groups .group-pill[aria-pressed="false"]{background:#fff;color:#141414}
+.discount-groups .group-pill:only-child{margin:auto}
+.options:has([data-group-preset]) .custom-option{flex:0 0 auto;min-width:78px;padding-inline:12px}
+.bulk-notice.limit-notice-interactive{border-radius:16px;margin-inline:8px;padding:8px 14px 12px}
+.limit-switch-row{display:flex;align-items:center;gap:4px;margin-top:3px}
+.limit-switch{position:relative;flex:none;width:32px;height:18px;border-radius:9px;padding:0;background:#dbdbd9}
+.limit-switch[aria-checked="false"] img{visibility:hidden}
+.limit-switch[aria-checked="false"]::before{content:"";position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:#fff}
+.limit-switch::after{content:"";position:absolute;inset:-5px -6px}
 .count-pill[aria-pressed="false"] .count-check img{visibility:hidden}
 .count-pill[aria-pressed="false"] .count-check::before{content:"";position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:4px;background:#363533}
 .no-selection .scroll{padding-bottom:102px}.no-selection .selection{bottom:46px}.no-selection #screen:after{content:"";position:absolute;bottom:8px;left:120.5px;width:134px;height:5px;background:#000;border-radius:100px;pointer-events:none}
