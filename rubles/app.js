@@ -135,7 +135,8 @@ function render(animate = true) {
     const item = chosen[0];
     const amount = preview(item).amount;
     const custom = !singlePresets(item).includes(amount);
-    $('#options').innerHTML = presetButtons(item, amount, 'data-amount') + `<button class="chip custom-option ${custom ? 'active' : ''}" id="edit" data-edit="${item.id}">Своя<img src="${asset('49135.svg')}" alt=""></button>`;
+    const customLabel = custom ? money(amount) : 'Своя';
+    $('#options').innerHTML = presetButtons(item, amount, 'data-amount') + `<button class="chip custom-option ${custom ? 'active' : ''}" id="edit" data-edit="${item.id}">${customLabel}<img src="${asset('49135.svg')}" alt=""></button>`;
   } else $('#options').innerHTML = '';
   const removing = isRemovingSelection(chosen);
   $('#apply').textContent = removing ? 'Удалить скидку' : 'Применить';
