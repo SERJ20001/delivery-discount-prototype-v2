@@ -40,6 +40,15 @@ function preview(item) {
   return state.selected.has(item.id) ? state.previews.get(item.id) : state.applied.get(item.id);
 }
 
+function sharedCustomAmount(items) {
+  const first = preview(items[0]);
+  if (!first?.isCustom) return null;
+  return items.every(item => {
+    const discount = preview(item);
+    return discount?.isCustom && discount.requestedAmount === first.requestedAmount;
+  }) ? first.requestedAmount : null;
+}
+
 function checkbox(selected) {
   return `<img class="check-image" src="${selected ? asset('a4747.svg') : 'assets/checkbox-inactive.svg'}" alt="">`;
 }
@@ -129,8 +138,10 @@ function render(animate = true) {
   if (activeGroup) {
     $('#options').innerHTML = groupOptions(activeGroup);
   } else if (chosen.length > 1) {
-    const optimal = chosen.every(item => preview(item).amount === optimalAmount(item).amount);
-    $('#options').innerHTML = `<button class="chip ${optimal ? 'active' : ''}" data-range="optimal" aria-pressed="${optimal}">Оптимальная</button><button class="chip custom-option" id="edit-bulk">Своя<img src="${asset('49135.svg')}" alt=""></button>`;
+    const amount = sharedCustomAmount(chosen);
+    const custom = amount !== null;
+    const optimal = !custom && chosen.every(item => preview(item).amount === optimalAmount(item).amount);
+    $('#options').innerHTML = `<button class="chip ${optimal ? 'active' : ''}" data-range="optimal" aria-pressed="${optimal}">Оптимальная</button><button class="chip custom-option ${custom ? 'active' : ''}" id="edit-bulk" aria-pressed="${custom}">${custom ? money(amount) : 'Своя'}<img src="${asset('49135.svg')}" alt=""></button>`;
   } else if (chosen.length === 1) {
     const item = chosen[0];
     const amount = preview(item).amount;
@@ -200,7 +211,8 @@ function openEditor(itemId = null) {
   const commonMaximum = Math.min(...items.map(product => limits(product.price).maximum));
   const amounts = items.map(product => preview(product)?.amount ?? optimalAmount(product).amount).sort((a, b) => a - b);
   const middle = amounts[Math.floor(amounts.length / 2)];
-  const initial = group?.amount ?? (item ? amounts[0] : commonMinimum <= commonMaximum ? Math.max(commonMinimum, Math.min(commonMaximum, middle)) : middle);
+  const defaultBulkAmount = commonMinimum <= commonMaximum ? Math.max(commonMinimum, Math.min(commonMaximum, middle)) : middle;
+  const initial = item ? amounts[0] : group?.amount ?? sharedCustomAmount(items) ?? defaultBulkAmount;
   state.editor = { item, items: [...items], group, draft: String(initial), clamp: { lower: true, upper: true }, scrollTop: $('#scroll').scrollTop };
   hideToast();
   setEditorProductVisibility();
@@ -224,7 +236,7 @@ function editorResults() {
     let limit = null;
     if (result?.requestedAmount < result?.minimum) limit = 'lower';
     if (result?.requestedAmount > result?.maximum) limit = 'upper';
-    return { item, result, limit, include: Boolean(result && (!limit || clamp[limit])) };
+    return { item, result: result && { ...result, isCustom: true }, limit, include: Boolean(result && (!limit || clamp[limit])) };
   });
 }
 
