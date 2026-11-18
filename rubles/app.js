@@ -206,7 +206,8 @@ function prepareSelection(previousSelection) {
     const current = state.previews.get(item.id);
     const useSinglePreset = single && !saved && previousSelection &&
       (!previousSelection.has(item.id) || current?.fromOptimal);
-    if (current && !useSinglePreset) continue;
+    const useBulkOptimal = variant === 4 && !single && !saved && !current?.fromOptimal;
+    if (current && !useSinglePreset && !useBulkOptimal) continue;
     const result = saved ?? (single
       ? calculateAmount(item, singlePresets(item)[0])
       : { ...optimalAmount(item), fromOptimal: true });

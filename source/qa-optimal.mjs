@@ -249,6 +249,18 @@ try {
   await variants.getByRole('switch', { name: 'Установим им максимальную' }).click();
   await variants.locator('#done').click();
   check('Variant 3 excludes the disabled group from the draft', await variants.locator('[data-group-index]').count() === 1 && await text(variants, '[data-group-index="0"]') === '7 товаров · 1 000 ₽');
+  await variants.goto(new URL('?variant=4#delivery', origin).href);
+  await select(variants, 'v4-book');
+  check('Variant 4 single selection uses the first preset', await text(variants, '[data-edit="v4-book"].discount-chip') === '100 ₽');
+  await select(variants, 'v4-scarf');
+  const optimalButton = variants.locator('[data-range="optimal"]');
+  check('Variant 4 preselects optimal on the second item', await optimalButton.getAttribute('aria-pressed') === 'true' && await text(variants, '[data-edit="v4-book"].discount-chip') === '190 ₽');
+  await select(variants, 'v4-scarf');
+  await variants.locator('[data-category="0"]').click();
+  check('Selecting the price band preselects optimal for the entire group', await optimalButton.getAttribute('aria-pressed') === 'true' && await text(variants, '#selection-count') === '4 товара');
+  await variants.locator('#apply').click();
+  await variants.locator('[data-tab="discounted"]').click();
+  check('Applying the default saves its previewed amounts', await text(variants, '[data-edit="v4-book"].discount-chip') === '190 ₽' && await text(variants, '[data-edit="v4-scarf"].discount-chip') === '322 ₽');
   await openVariant(4);
   await variants.locator('#amount').fill('85');
   check('Variant 4 confirms bulk discounts directly in the editor', await text(variants, '#done') === 'Применить скидку 16 товарам');
