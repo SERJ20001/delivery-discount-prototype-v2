@@ -168,8 +168,7 @@ function render(animate = true) {
 function renderCategoryNavigation() {
   $('#category-nav').innerHTML = catalogGroups.map((category, index) => {
     const count = groupItems(index).length;
-    const label = sortByPrice ? category.name : `${category.name} · ${count}`;
-    return count ? `<button class="chip" data-jump="${index}">${label}</button>` : '';
+    return count ? `<button class="chip" data-jump="${index}">${category.name} · ${count}</button>` : '';
   }).join('');
   updateCategoryNavigation();
 }
