@@ -2,7 +2,7 @@ const { limits } = DiscountModel;
 const asset = name => `assets/current/${name}`;
 const variant = EntryScreen.variant;
 const sortByPrice = variant === 4;
-const stageDiscounts = variant === 3 || sortByPrice;
+const stageDiscounts = variant === 3;
 const catalogGroups = sortByPrice ? priceCategories : categories;
 const startingItem = sortByPrice ? pricePreviousItem : previousItem;
 const catalogItems = catalogGroups.flatMap(group => group.items);

@@ -7,26 +7,29 @@
 <title>Скидка на доставку · сумма в рублях</title>
 <link rel="icon" href="data:,">
 <link rel="stylesheet" href="style.css?v=9411fb08ca36">
-<link rel="stylesheet" href="entry-screen.css?v=94dcfdfa1fe1">
-<script src="entry-screen.js?v=de0cf4994988" defer></script>
+<link rel="stylesheet" href="entry-screen.css?v=be96fa2e6412">
+<script src="entry-screen.js?v=7ead4009a8e1" defer></script>
 <script src="discount-model.js?v=f939c2743eb1" defer></script>
 <script src="catalog.js?v=3d4bbd392362" defer></script>
 <script src="motion.js?v=08ba48accc62" defer></script>
-<script src="app.js?v=6b383c926331" defer></script>
+<script src="app.js?v=899c9fe9c297" defer></script>
 </head>
 <body>
 <div id="loading" role="status"><p id="loading-copy">Загружаем прототип…</p><button id="retry" hidden>Повторить</button></div>
 <div id="stage"><main id="app" hidden inert>
-<section id="offers-screen" class="offers-screen" aria-labelledby="offers-title">
-<header class="offers-header"><div class="offers-status" aria-hidden="true"><img src="assets/entry/6e1df.svg" alt=""><img class="offers-status-icons" src="assets/entry/f11f2.svg" alt=""></div><div class="offers-back" aria-hidden="true"><img src="assets/entry/ce4ec.svg" alt=""></div></header>
+<section id="variants-screen" class="variants-screen" aria-labelledby="variants-title">
+<h1 id="variants-title" tabindex="-1">Варианты прототипа</h1>
+<nav class="prototype-variants" aria-labelledby="variants-title">
+<a href="?variant=1#offers" data-variant="1"><span>Вариант 1</span><strong>Автоматические пределы</strong><p>Если общая скидка выходит за пределы товара, ему назначается ближайшая допустимая сумма.</p></a>
+<a href="?variant=2#offers" data-variant="2"><span>Вариант 2</span><strong>Выбор товаров по пределам</strong><p>Можно применить минимальную или максимальную скидку либо исключить товары с таким ограничением.</p></a>
+<a href="?variant=3#offers" data-variant="3"><span>Вариант 3</span><strong>Настройка по группам</strong><p>После ввода суммы товары делятся на группы. Скидку каждой группы можно изменить перед общим применением.</p></a>
+<a href="?variant=4#offers" data-variant="4"><span>Вариант 4</span><strong>Группировка по цене</strong><p>Товары собраны по ценовым диапазонам. Свою сумму можно сразу применить к выбранным товарам из шторки.</p></a>
+</nav>
+</section>
+<section id="offers-screen" class="offers-screen" hidden aria-labelledby="offers-title">
+<header class="offers-header"><div class="offers-status" aria-hidden="true"><img src="assets/entry/6e1df.svg" alt=""><img class="offers-status-icons" src="assets/entry/f11f2.svg" alt=""></div><button type="button" id="back-to-variants" class="offers-back" aria-label="К выбору прототипа"><img src="assets/entry/ce4ec.svg" alt=""></button></header>
 <div class="offers-scroll" id="offers-scroll">
 <div class="offers-intro"><h1 id="offers-title" tabindex="-1">Спецпредложения</h1><p>Используйте эти инструменты, чтобы быстрее находить покупателей</p></div>
-<nav class="prototype-variants" aria-label="Варианты прототипа">
-<a href="?variant=1" data-variant="1">Вариант 1</a>
-<a href="?variant=2" data-variant="2">Вариант 2</a>
-<a href="?variant=3" data-variant="3">Вариант 3</a>
-<a href="?variant=4" data-variant="4">Вариант 4</a>
-</nav>
 <div class="offers-banner"><div><h2>Сделайте <span id="offer-recommendation-total">32 объявления</span><br>привлекательнее</h2><p>Вот что предлагает нейросеть →</p></div><div class="offers-collage" aria-hidden="true"><img src="assets/entry/5b2a2.png" alt=""><img src="assets/entry/256ee.png" alt=""></div></div>
 <div class="offers-list">
 <article class="offer-card"><div class="offer-heading"><img src="assets/entry/fad7b.svg" alt=""><h2>Распродажа</h2><span class="offer-counter">2</span><img class="offer-chevron" src="assets/entry/c8f7b.svg" alt=""></div><p class="offer-description">Сделайте скидку — так товары<br>покупают в среднем на 41% быстрее</p></article>

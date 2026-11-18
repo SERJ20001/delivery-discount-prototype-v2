@@ -33,7 +33,9 @@ try {
   await page.locator('#loading').waitFor({ state: 'hidden' });
   const build = await page.evaluate(async () => (await fetch('build.json', { cache: 'no-store' })).json());
   check('Exact published build', JSON.stringify(build) === JSON.stringify(JSON.parse(await readFile('rubles/build.json', 'utf8'))));
-  check('Starts at offers', await page.locator('#offers-screen').isVisible());
+  check('Starts with four described prototypes', await page.locator('#variants-screen').isVisible() && await page.locator('[data-variant] p').count() === 4 && await page.locator('#offers-screen').isHidden());
+  await page.locator('[data-variant="1"]').click();
+  check('Choosing a prototype opens offers', await page.locator('#offers-screen').isVisible());
   await page.locator('#open-delivery').click();
   check('Empty initial selection, 10 eligible and one saved', await text(page, '#selection-count') === 'Выбрать все' && await text(page, '#eligible-count') === '10' && await text(page, '#discounted-count') === '1');
   check('No calculator or AI caption without selection', await page.locator('.calculator').isHidden() && await page.locator('#ai-caption').count() === 0);
@@ -201,7 +203,7 @@ try {
     await variants.goto(origin);
     await variants.locator(`[data-variant="${number}"]`).click();
     await variants.locator('#loading').waitFor({ state: 'hidden' });
-    check(`Variant ${number} opens from the start and is selected`, await variants.locator(`[data-variant="${number}"]`).getAttribute('aria-current') === 'page');
+    check(`Variant ${number} opens from the start and is selected`, await variants.locator('#offers-screen').isVisible() && await variants.locator('#variants-screen').isHidden() && new URL(variants.url()).searchParams.get('variant') === String(number));
     await variants.locator('#open-delivery').click();
     await variants.locator('#select-all').click();
     await variants.locator('#edit-bulk').click();
@@ -247,6 +249,15 @@ try {
   await variants.getByRole('switch', { name: 'Установим им максимальную' }).click();
   await variants.locator('#done').click();
   check('Variant 3 excludes the disabled group from the draft', await variants.locator('[data-group-index]').count() === 1 && await text(variants, '[data-group-index="0"]') === '7 товаров · 1 000 ₽');
+  await openVariant(4);
+  await variants.locator('#amount').fill('85');
+  check('Variant 4 confirms bulk discounts directly in the editor', await text(variants, '#done') === 'Применить скидку 16 товарам');
+  await variants.locator('#done').click();
+  check('Variant 4 applies to the priced catalog in one step', await text(variants, '#discounted-count') === '17' && await variants.locator('[data-group-index]').count() === 0);
+  await variants.locator('#screen .back').first().click();
+  await variants.locator('#back-to-variants').click();
+  await variants.locator('#variants-screen').waitFor();
+  check('Back returns through offers to the prototype picker', await variants.locator('#offers-screen').isHidden());
   check('No browser errors or missing assets', errors.length === 0);
   await writeFile(`${output}/report.json`, JSON.stringify({ origin, revision: build.revision, checks, errors }, null, 2));
   console.log(JSON.stringify({ passed: checks.length, errors, revision: build.revision }));
