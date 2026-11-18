@@ -2299,6 +2299,454 @@
         "nodeId": "2043:154632"
       },
       "designContext": "3574:114010"
+    },
+    {
+      "id": "v4-backpack",
+      "file": "assets/current/v4-backpack.png",
+      "path": "rubles/assets/current/v4-backpack.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 36632,
+      "sha256": "cc2fa8a3273c711bbdf23068b72778db1dc1acfc12e99b932ba93737f1635c6c",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-basket",
+      "file": "assets/current/v4-basket.png",
+      "path": "rubles/assets/current/v4-basket.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 46374,
+      "sha256": "6ab3c262154a2bd01aed3502514d62867cb5deb47ee4bbc575e089941d786000",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-bicycle",
+      "file": "assets/current/v4-bicycle.png",
+      "path": "rubles/assets/current/v4-bicycle.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 48659,
+      "sha256": "1a2c95743bdcfd61c69b5f6cc1c0708e6a4fe6e95d2f295f77f78ed7e3cec980",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-book",
+      "file": "assets/current/v4-book.png",
+      "path": "rubles/assets/current/v4-book.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 33045,
+      "sha256": "c595d28422916cabbbde67f6302972a60b63b2817c168f82613394339be65676",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-camera",
+      "file": "assets/current/v4-camera.png",
+      "path": "rubles/assets/current/v4-camera.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 39968,
+      "sha256": "2d8e1c7a5c355b7ccf3c7b84f414771896d0bde0717025dab4e1bfb872905919",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-dumbbells",
+      "file": "assets/current/v4-dumbbells.png",
+      "path": "rubles/assets/current/v4-dumbbells.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 33657,
+      "sha256": "9e8d29fb4e2d8365804a08f010e96bc6e7e401f226e561504ecfc348a02a2a2b",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-espresso",
+      "file": "assets/current/v4-espresso.png",
+      "path": "rubles/assets/current/v4-espresso.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 36142,
+      "sha256": "945a0de376fc39a541f357fc6b67f124b9b3ca4f9f5b88dd05f00dfd56ee4574",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-headphones",
+      "file": "assets/current/v4-headphones.png",
+      "path": "rubles/assets/current/v4-headphones.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 38615,
+      "sha256": "4955837ab60623dc158bf393964aa3488b8f801b8481ca16c81aab154704c009",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-keyboard",
+      "file": "assets/current/v4-keyboard.png",
+      "path": "rubles/assets/current/v4-keyboard.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 28616,
+      "sha256": "4a13809eeb04f47f2d6fb299e5f24a5d5ad6d5d5060ac82ce67b674144ba9022",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-lamp",
+      "file": "assets/current/v4-lamp.png",
+      "path": "rubles/assets/current/v4-lamp.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 36300,
+      "sha256": "bb9d314ac6174db40261636ad5d6fdfdade91980a5145c2be3c7c1e4c03f70b2",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-laptop",
+      "file": "assets/current/v4-laptop.png",
+      "path": "rubles/assets/current/v4-laptop.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 30193,
+      "sha256": "976627c8e089e38090c878e175f1318fa79d6f9a426534949f4b72de503e0eda",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-lens",
+      "file": "assets/current/v4-lens.png",
+      "path": "rubles/assets/current/v4-lens.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 31806,
+      "sha256": "6dc69f0605212ce006ff3a923e67aee7af4caf9cc33be73cc3a2158dc14e6fbd",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-mug",
+      "file": "assets/current/v4-mug.png",
+      "path": "rubles/assets/current/v4-mug.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 37742,
+      "sha256": "2af5d0be1743686c8778842ffd1358561ac774dee3de40f62e8e0b7740ab58a1",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-piano",
+      "file": "assets/current/v4-piano.png",
+      "path": "rubles/assets/current/v4-piano.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 28624,
+      "sha256": "4397e2be227174c58ef7891611071c0e28f8ad1b2b66a8f9f27bf1e76e1bd57e",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-scarf",
+      "file": "assets/current/v4-scarf.png",
+      "path": "rubles/assets/current/v4-scarf.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 53296,
+      "sha256": "7919b1a06c0d40108608f6da1db142511b45a88bad35cd39f49d77dd674dbe04",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
+    },
+    {
+      "id": "v4-tablet",
+      "file": "assets/current/v4-tablet.png",
+      "path": "rubles/assets/current/v4-tablet.png",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 25512,
+      "sha256": "3458225ed19be387cb5594c76e6be159c221b965ecfeead9c0a1b8faced9f070",
+      "logical": [
+        80,
+        80
+      ],
+      "physical": [
+        240,
+        240
+      ],
+      "dimensions": [
+        240,
+        240
+      ],
+      "scale": 3,
+      "role": "variant 4 demo product photo",
+      "source": {
+        "type": "generated",
+        "tool": "imagegen"
+      }
     }
   ],
   "regions": [

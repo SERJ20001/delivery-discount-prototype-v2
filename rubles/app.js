@@ -1,17 +1,22 @@
 const { limits } = DiscountModel;
 const asset = name => `assets/current/${name}`;
-const allItems = categories.flatMap(category => category.items);
-const inventory = [...allItems, previousItem];
-const state = { tab: 'eligible', selected: new Set(), applied: new Map([[previousItem.id, calculateAmount(previousItem, 300)]]), previews: new Map(), editor: null, groups: [], activeGroup: null };
 const variant = EntryScreen.variant;
+const sortByPrice = variant === 4;
+const stageDiscounts = variant === 3 || sortByPrice;
+const catalogGroups = sortByPrice ? priceCategories : categories;
+const startingItem = sortByPrice ? pricePreviousItem : previousItem;
+const catalogItems = catalogGroups.flatMap(group => group.items);
+const inventory = sortByPrice ? catalogItems : [...catalogItems, startingItem];
+const state = { tab: 'eligible', selected: new Set(), applied: new Map([[startingItem.id, calculateAmount(startingItem, 300)]]), previews: new Map(), editor: null, groups: [], activeGroup: null };
 const money = value => `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const word = count => count % 10 === 1 && count % 100 !== 11 ? 'товар' : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? 'товара' : 'товаров';
 const $ = selector => document.querySelector(selector);
 const app = $('#app');
+app.classList.toggle('catalog-by-price', sortByPrice);
 const amountMeasure = document.createElement('canvas').getContext('2d');
 const visibleItems = () => inventory.filter(item => state.tab === 'eligible' ? !state.applied.has(item.id) : state.applied.has(item.id));
 const chosenItems = () => visibleItems().filter(item => state.selected.has(item.id));
-const groupItems = index => visibleItems().filter(item => categories[index].items.includes(item) || (index === 0 && item === previousItem));
+const groupItems = index => visibleItems().filter(item => catalogGroups[index].items.includes(item) || (!sortByPrice && index === 0 && item === startingItem));
 let toastTimer;
 let toastRun = 0;
 let editorTrigger;
@@ -101,7 +106,10 @@ function renderDiscountGroups(chosen) {
 function groupOptions(group) {
   const modes = group.kind === 'upper' ? ['maximum', 'optimal'] : ['minimum', 'optimal'];
   const options = modes.map(mode => `<button class="chip ${group.mode === mode ? 'active' : ''}" data-group-preset="${mode}" aria-pressed="${group.mode === mode}">${groupLabels[mode]}</button>`);
-  if (group.kind === 'custom') options.push(`<button class="chip custom-option ${group.mode === 'custom' ? 'active' : ''}" id="edit-bulk">${group.amount !== undefined ? money(group.amount) : 'Своя'}<img src="${asset('49135.svg')}" alt=""></button>`);
+  if (group.kind === 'custom') {
+    const custom = group.mode === 'custom';
+    options.push(`<button class="chip custom-option ${custom ? 'active' : ''}" id="edit-bulk" aria-pressed="${custom}">${custom ? money(group.amount) : 'Своя'}<img src="${asset('49135.svg')}" alt=""></button>`);
+  }
   return options.join('');
 }
 
@@ -123,7 +131,7 @@ function render(animate = true) {
     button.classList.toggle('active', button.dataset.tab === state.tab);
     button.setAttribute('aria-pressed', String(button.dataset.tab === state.tab));
   });
-  $('#catalog').innerHTML = categories.map((category, index) => {
+  $('#catalog').innerHTML = catalogGroups.map((category, index) => {
     const items = groupItems(index);
     if (!items.length) return '';
     const checked = items.every(item => state.selected.has(item.id));
@@ -159,16 +167,17 @@ function render(animate = true) {
 }
 
 function renderCategoryNavigation() {
-  $('#category-nav').innerHTML = categories.map((category, index) => {
+  $('#category-nav').innerHTML = catalogGroups.map((category, index) => {
     const count = groupItems(index).length;
-    return count ? `<button class="chip" data-jump="${index}">${category.name} · ${count}</button>` : '';
+    const label = sortByPrice ? category.name : `${category.name} · ${count}`;
+    return count ? `<button class="chip" data-jump="${index}">${label}</button>` : '';
   }).join('');
   updateCategoryNavigation();
 }
 function updateCategoryNavigation() {
   const scroll = $('#scroll');
   const header = $('#catalog-header');
-  header.hidden = scroll.scrollTop < 308;
+  header.hidden = !sortByPrice && scroll.scrollTop < 308;
   if (header.hidden) return;
   const groups = [...document.querySelectorAll('[data-group]')];
   const active = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 1 ? groups.at(-1) : groups.findLast(group => group.offsetTop <= scroll.scrollTop + 150) || groups[0];
@@ -266,7 +275,7 @@ function updateEditor() {
   const included = results.filter(entry => entry.include).length;
   $('#done').disabled = included === 0;
   $('#done').textContent = item ? connected ? 'Сохранить' : 'Применить скидку'
-    : variant === 3 ? 'Готово' : included ? `Применить скидку ${included} ${recipientWord(included)}` : 'Применить скидку';
+    : stageDiscounts ? 'Готово' : included ? `Применить скидку ${included} ${recipientWord(included)}` : 'Применить скидку';
   $('#cancel-edit').hidden = !item || connected;
   $('#remove-discount').hidden = !connected;
   const limited = item && result?.limited === true;
@@ -332,7 +341,7 @@ function commitEditor() {
   const results = editorResults();
   const included = results.filter(entry => entry.include);
   if (!included.length) return;
-  if (!item && variant === 3) {
+  if (!item && stageDiscounts) {
     stageBulkDiscount(results);
     return;
   }
@@ -496,7 +505,8 @@ $('#category-nav').addEventListener('click', event => {
   const button = event.target.closest('[data-jump]');
   if (!button) return;
   const group = $(`[data-group="${button.dataset.jump}"]`);
-  $('#scroll').scrollTo({ top: Math.max(308, group.offsetTop - 142), behavior: PrototypeMotion.scrollBehavior });
+  const top = group.offsetTop - 142;
+  $('#scroll').scrollTo({ top: sortByPrice ? top : Math.max(308, top), behavior: PrototypeMotion.scrollBehavior });
 });
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && state.editor) { event.preventDefault(); closeEditor(); }
@@ -543,7 +553,7 @@ function enterDelivery() {
   state.previews.clear();
   $('#scroll').scrollTop = 0;
   render(false);
-  $('#screen .back').focus({ preventScroll: true });
+  $(sortByPrice ? '#catalog-header .back' : '.hero .back').focus({ preventScroll: true });
   PrototypeMotion.animate($('#screen'), [{ opacity: 0, transform: 'translateX(14px)' }, { opacity: 1, transform: 'translateX(0)' }], { duration: 280 });
 }
 
@@ -579,7 +589,7 @@ async function start() {
     ['86592.svg', '49135.svg', 'bc31a.svg', '3c5f8.svg'].forEach(name => paths.add(asset(name)));
     if (variant !== 1) paths.add(asset('5b3cf.svg'));
     paths.add('assets/checkbox-inactive.svg');
-    [previousItem, ...allItems].forEach(item => item.images.forEach(image => paths.add(asset(image))));
+    inventory.forEach(item => item.images.forEach(image => paths.add(asset(image))));
     await Promise.race([
       Promise.all([...paths].map(prepareImage).concat(Object.entries({ regular: 400, medium: 500, bold: 700 }).map(([name, weight]) => prepareFont(name, weight)))),
       new Promise((_, reject) => { timeout = setTimeout(() => reject(new Error('timeout')), 20000); })

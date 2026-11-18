@@ -67,6 +67,11 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;-webkit-t
 
 .calculator{box-shadow:0 4px 24px #0000001f,0 1px 3px #0000000d}.scroll{padding-bottom:220px}
 
+.catalog-by-price .hero{display:none}
+.catalog-by-price .scroll{padding-top:142px}
+.catalog-by-price .category-nav{padding-inline:11px}
+.catalog-by-price .category-nav .chip{padding-inline:10px}
+
 .editor-discount.placeholder{color:#757575}
 #screen:not([inert]) .catalog{interactivity:auto}
 #screen[inert] .catalog{interactivity:inert}

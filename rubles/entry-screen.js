@@ -6,7 +6,7 @@ const EntryScreen = (() => {
   const delivery = document.querySelector('#screen');
   const trigger = document.querySelector('#open-delivery');
   const requestedVariant = new URLSearchParams(location.search).get('variant');
-  const variant = requestedVariant === '2' || requestedVariant === '3' ? Number(requestedVariant) : 1;
+  const variant = ['2', '3', '4'].includes(requestedVariant) ? Number(requestedVariant) : 1;
 
   function showPage() {
     const editing = location.hash === '#delivery';
