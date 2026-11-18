@@ -166,9 +166,12 @@ function render(animate = true) {
 }
 
 function renderCategoryNavigation() {
-  $('#category-nav').innerHTML = catalogGroups.map((category, index) => {
+  const nav = $('#category-nav');
+  nav.classList.toggle('price-ranges', sortByPrice);
+  nav.innerHTML = catalogGroups.map((category, index) => {
     const count = groupItems(index).length;
-    return count ? `<button class="chip" data-jump="${index}">${category.name} · ${count}</button>` : '';
+    const label = sortByPrice ? category.name : `${category.name} · ${count}`;
+    return count ? `<button class="chip" data-jump="${index}">${label}</button>` : '';
   }).join('');
   updateCategoryNavigation();
 }
@@ -184,7 +187,15 @@ function updateCategoryNavigation() {
     const changed = button.classList.contains('active') !== selected;
     button.classList.toggle('active', selected);
     button.setAttribute('aria-current', String(selected));
-    if (selected && changed) button.parentElement.scrollTo({ left: button.offsetLeft - 68, behavior: PrototypeMotion.scrollBehavior });
+    if (selected && changed) {
+      const nav = button.parentElement;
+      const leftEdge = button.offsetLeft - 11;
+      const rightEdge = button.offsetLeft + button.offsetWidth + 11 - nav.clientWidth;
+      const left = sortByPrice
+        ? Math.max(rightEdge, Math.min(leftEdge, nav.scrollLeft))
+        : button.offsetLeft - 68;
+      nav.scrollTo({ left, behavior: PrototypeMotion.scrollBehavior });
+    }
   });
 }
 function prepareSelection(previousSelection) {

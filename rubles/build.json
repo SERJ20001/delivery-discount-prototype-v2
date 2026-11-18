@@ -2,11 +2,11 @@
   "versions": {
     "entry-screen.css": "94dcfdfa1fe1",
     "entry-screen.js": "de0cf4994988",
-    "style.css": "1f0045d6c300",
+    "style.css": "9411fb08ca36",
     "discount-model.js": "f939c2743eb1",
     "catalog.js": "3d4bbd392362",
     "motion.js": "08ba48accc62",
-    "app.js": "895913d6405f"
+    "app.js": "6b383c926331"
   },
-  "revision": "36afc09bb55fd3a0e2d27a21afef4e1cc8a4ce80b1e9800236ac6e84b688b179"
+  "revision": "0cde36f27098950fcf5d3ea1d63dc47d136613e7c51c40d704efaa3121cd222b"
 }
