@@ -12,7 +12,6 @@ const money = value => `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const word = count => count % 10 === 1 && count % 100 !== 11 ? 'товар' : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? 'товара' : 'товаров';
 const $ = selector => document.querySelector(selector);
 const app = $('#app');
-app.classList.toggle('catalog-by-price', sortByPrice);
 const amountMeasure = document.createElement('canvas').getContext('2d');
 const visibleItems = () => inventory.filter(item => state.tab === 'eligible' ? !state.applied.has(item.id) : state.applied.has(item.id));
 const chosenItems = () => visibleItems().filter(item => state.selected.has(item.id));
@@ -177,7 +176,7 @@ function renderCategoryNavigation() {
 function updateCategoryNavigation() {
   const scroll = $('#scroll');
   const header = $('#catalog-header');
-  header.hidden = !sortByPrice && scroll.scrollTop < 308;
+  header.hidden = scroll.scrollTop < 308;
   if (header.hidden) return;
   const groups = [...document.querySelectorAll('[data-group]')];
   const active = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 1 ? groups.at(-1) : groups.findLast(group => group.offsetTop <= scroll.scrollTop + 150) || groups[0];
@@ -505,8 +504,7 @@ $('#category-nav').addEventListener('click', event => {
   const button = event.target.closest('[data-jump]');
   if (!button) return;
   const group = $(`[data-group="${button.dataset.jump}"]`);
-  const top = group.offsetTop - 142;
-  $('#scroll').scrollTo({ top: sortByPrice ? top : Math.max(308, top), behavior: PrototypeMotion.scrollBehavior });
+  $('#scroll').scrollTo({ top: Math.max(308, group.offsetTop - 142), behavior: PrototypeMotion.scrollBehavior });
 });
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && state.editor) { event.preventDefault(); closeEditor(); }
@@ -553,7 +551,7 @@ function enterDelivery() {
   state.previews.clear();
   $('#scroll').scrollTop = 0;
   render(false);
-  $(sortByPrice ? '#catalog-header .back' : '.hero .back').focus({ preventScroll: true });
+  $('#screen .back').focus({ preventScroll: true });
   PrototypeMotion.animate($('#screen'), [{ opacity: 0, transform: 'translateX(14px)' }, { opacity: 1, transform: 'translateX(0)' }], { duration: 280 });
 }
 
