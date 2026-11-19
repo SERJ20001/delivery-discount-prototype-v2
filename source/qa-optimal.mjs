@@ -249,9 +249,16 @@ try {
   await variants.getByRole('switch', { name: 'Установим им максимальную' }).click();
   await variants.locator('#done').click();
   check('Variant 3 excludes the disabled group from the draft', await variants.locator('[data-group-index]').count() === 1 && await text(variants, '[data-group-index="0"]') === '7 товаров · 1 000 ₽');
-  await variants.goto(new URL('?variant=4#delivery', origin).href);
-  await variants.locator('#loading').waitFor({ state: 'hidden' });
-  check('Mobile delivery uses the system status and home indicator', await variants.locator('.statusbar').isHidden() && await variants.locator('#screen').evaluate(el => getComputedStyle(el, '::after').display === 'none'));
+  for (const [width, height] of [[1280, 900], [601, 812], [375, 850]]) {
+    await variants.setViewportSize({ width, height });
+    await variants.goto(new URL('?variant=4#offers', origin).href);
+    await variants.locator('#offers-screen').waitFor();
+    check(`Offers omits simulated device bars at ${width}px`, await variants.locator('.offers-status').isHidden() && await variants.locator('.offers-footer > img').isHidden());
+    await variants.locator('#open-delivery').click();
+    await variants.locator('#screen').waitFor();
+    check(`Delivery omits simulated device bars at ${width}px`, await variants.locator('.statusbar').isHidden() && await variants.locator('#screen').evaluate(el => getComputedStyle(el, '::after').display === 'none'));
+    check(`Delivery starts with back navigation at ${width}px`, await variants.locator('.hero .back').evaluate(el => el.offsetTop === 0));
+  }
   await variants.locator('[data-category="0"]').click();
   await variants.locator('#edit-bulk').click();
   for (const [amount, message] of [['4500', 'Максимальная: 245 ₽'], ['1', 'Минимальная: 110 ₽']]) {
