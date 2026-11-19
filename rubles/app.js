@@ -3,6 +3,7 @@ const asset = name => `assets/current/${name}`;
 const variant = EntryScreen.variant;
 const switchableCatalog = variant === 4;
 const stageDiscounts = variant === 3;
+const canExcludeLimitedItems = variant === 2 || stageDiscounts;
 let sortByPrice = false;
 let catalogGroups = switchableCatalog ? departmentItems : categories;
 const startingItem = switchableCatalog ? pricePreviousItem : previousItem;
@@ -279,7 +280,7 @@ function openEditor(itemId = null) {
   if (switchableCatalog && !item) {
     initial = sharedRange ? Math.max(minimum, Math.min(maximum, initial)) : bestCoveredAmount(ranges, initial);
   }
-  state.editor = { item, items: [...items], group, minimum, maximum, sharedRange, draft: String(initial), clamp: { lower: true, upper: true, outside: true }, scrollTop: $('#scroll').scrollTop };
+  state.editor = { item, items: [...items], group, minimum, maximum, sharedRange, draft: String(initial), clamp: { lower: true, upper: true }, scrollTop: $('#scroll').scrollTop };
   hideToast();
   setEditorProductVisibility();
   PrototypeMotion.layout(positions);
@@ -289,7 +290,7 @@ function openEditor(itemId = null) {
   $('#editor').classList.toggle('individual-editor', Boolean(item));
   $('#editor').setAttribute('aria-label', item ? `Скидка: ${item.title}` : 'Скидка для выбранных товаров');
   $('#editor-product').hidden = !item;
-  $('#editor-options').innerHTML = `<label class="custom-input"><input id="amount" type="text" inputmode="none" autocomplete="off" maxlength="6" aria-label="Сумма скидки в рублях"><span id="amount-suffix">₽</span></label><div class="amount-slider"><input id="amount-slider" type="range" step="1" aria-label="Скидка на слайдере"><div class="slider-labels"><span id="minimum-label"></span><span id="maximum-label"></span></div></div><div id="limit-tooltip" class="limit-tooltip" role="tooltip" aria-live="polite" hidden></div>`;
+  $('#editor-options').innerHTML = `<label class="custom-input"><input id="amount" type="text" inputmode="none" autocomplete="off" maxlength="6" aria-label="Сумма скидки в рублях"><span id="amount-suffix">₽</span></label><div class="amount-slider"><input id="amount-slider" type="range" step="1" aria-label="Скидка на слайдере"><div class="slider-labels"><span id="minimum-label"></span><span id="maximum-label"></span></div></div>`;
   updateEditor();
   $('#amount').focus({ preventScroll: true });
   $('#amount').select();
@@ -303,7 +304,7 @@ function editorResults() {
     let limit = null;
     if (result?.requestedAmount < result?.minimum) limit = 'lower';
     if (result?.requestedAmount > result?.maximum) limit = 'upper';
-    return { item, result: result && { ...result, isCustom: true }, limit, include: Boolean(result && (!limit || clamp[switchableCatalog ? 'outside' : limit])) };
+    return { item, result: result && { ...result, isCustom: true }, limit, include: Boolean(result && (!limit || !canExcludeLimitedItems || clamp[limit])) };
   });
 }
 
@@ -345,7 +346,7 @@ function updateEditor() {
 
 function renderLimitNotice(results) {
   const notice = $('#bulk-notice');
-  const interactive = variant !== 1;
+  const interactive = canExcludeLimitedItems;
   const limitTypes = switchableCatalog ? ['outside'] : ['lower', 'upper'];
   const notices = limitTypes.flatMap(limit => {
     const affected = results.filter(entry => limit === 'outside' ? entry.limit : entry.limit === limit);
@@ -356,9 +357,12 @@ function renderLimitNotice(results) {
     const label = mixed ? `Скидка вне диапазона для ${count} ${genitiveWord(count)}` : `Скидка ${lower ? 'меньше минимальной' : 'больше максимальной'} для ${count} ${genitiveWord(count)}`;
     const pronoun = count === 1 ? 'ему' : 'им';
     const amount = lower ? 'минимальную' : 'максимальную';
-    if (!interactive) return [`<div role="status"><p>${label}</p><p>Установим ${pronoun} ${lower ? 'минимально' : 'максимально'} возможную скидку</p></div>`];
+    if (!interactive) {
+      const explanation = mixed ? 'Для каждого установим ближайшую допустимую скидку' : `Установим ${pronoun} ${lower ? 'минимально' : 'максимально'} возможную скидку`;
+      return [`<div role="status"><p>${label}</p><p>${explanation}</p></div>`];
+    }
     const checked = state.editor.clamp[limit];
-    const action = mixed ? 'Установим ближайшую допустимую скидку' : `Установим ${pronoun} ${amount}`;
+    const action = `Установим ${pronoun} ${amount}`;
     return [`<div><p role="status">${label}</p><div class="limit-switch-row"><span>${action}</span><button type="button" class="limit-switch" role="switch" aria-checked="${checked}" aria-label="${action}" data-limit="${limit}"><img src="${asset('5b3cf.svg')}" alt=""></button></div></div>`];
   });
   notice.classList.toggle('limit-notice-interactive', interactive);
@@ -599,7 +603,9 @@ function resize() {
   const height = window.visualViewport?.height || window.innerHeight;
   const mobile = width <= 600;
   const scale = mobile ? width / 375 : Math.min(1, (height - 32) / 812);
-  const logicalHeight = mobile ? height / scale : 812;
+  const body = getComputedStyle(document.body);
+  const availableHeight = height - parseFloat(body.paddingTop) - parseFloat(body.paddingBottom);
+  const logicalHeight = mobile ? availableHeight / scale : 812;
   $('#stage').style.width = `${375 * scale}px`;
   $('#stage').style.height = `${logicalHeight * scale}px`;
   app.style.height = `${logicalHeight}px`;
@@ -649,7 +655,7 @@ async function start() {
     render(false);
     const paths = new Set([...document.querySelectorAll('img')].map(image => image.getAttribute('src')));
     ['86592.svg', '49135.svg', 'bc31a.svg', '3c5f8.svg'].forEach(name => paths.add(asset(name)));
-    if (variant !== 1) paths.add(asset('5b3cf.svg'));
+    if (canExcludeLimitedItems) paths.add(asset('5b3cf.svg'));
     paths.add('assets/checkbox-inactive.svg');
     inventory.forEach(item => item.images.forEach(image => paths.add(asset(image))));
     await Promise.race([

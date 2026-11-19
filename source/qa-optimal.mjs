@@ -250,6 +250,28 @@ try {
   await variants.locator('#done').click();
   check('Variant 3 excludes the disabled group from the draft', await variants.locator('[data-group-index]').count() === 1 && await text(variants, '[data-group-index="0"]') === '7 товаров · 1 000 ₽');
   await variants.goto(new URL('?variant=4#delivery', origin).href);
+  await variants.locator('#loading').waitFor({ state: 'hidden' });
+  check('Mobile delivery uses the system status and home indicator', await variants.locator('.statusbar').isHidden() && await variants.locator('#screen').evaluate(el => getComputedStyle(el, '::after').display === 'none'));
+  await variants.locator('[data-category="0"]').click();
+  await variants.locator('#edit-bulk').click();
+  for (const [amount, message] of [['4500', 'Максимальная: 245 ₽'], ['1', 'Минимальная: 110 ₽']]) {
+    await variants.locator('#amount').fill(amount);
+    const hint = variants.locator('#limit-tooltip');
+    check(`Visible shared-bound tooltip for ${amount}`, await hint.innerText() === message && await hint.evaluate(el => {
+      const rect = el.getBoundingClientRect();
+      const stack = el.closest('.editor-stack').getBoundingClientRect();
+      const panel = document.querySelector('.editor-panel').getBoundingClientRect();
+      return rect.top >= stack.top && rect.bottom <= panel.top && rect.left >= stack.left && rect.right <= stack.right;
+    }));
+    check(`All four recipients can apply ${amount}`, await text(variants, '#done') === 'Применить скидку 4 товарам');
+  }
+  await variants.locator('#amount').fill('4500');
+  await shot(variants, 'v4-bulk-tooltip');
+  await variants.locator('#done').click();
+  await variants.locator('[data-tab="discounted"]').click();
+  check('All four limited discounts persist at the shared maximum', (await variants.locator('.discount-chip').allTextContents()).filter(label => label.trim() === '245 ₽').length === 4);
+  await variants.reload();
+  await variants.locator('#loading').waitFor({ state: 'hidden' });
   await variants.locator('#future-toggle').click();
   check('Future discounts open with the first price example', await text(variants, '#estimate-value') === '100 ₽');
   await variants.locator('[data-estimate="2"]').click();
@@ -305,13 +327,11 @@ try {
   await variants.locator('[data-tab="discounted"]').click();
   check('Applying the default saves its previewed amounts', await text(variants, '[data-edit="v4-book"].discount-chip') === '190 ₽' && await text(variants, '[data-edit="v4-scarf"].discount-chip') === '322 ₽');
   await openVariant(4);
-  const exceptionSwitch = variants.locator('#bulk-notice [role="switch"]');
-  check('Variant 4 starts with only one exception for the full catalog', await exceptionSwitch.count() === 1 && /для 1 товара$/.test(await text(variants, '#bulk-notice [role="status"]')));
+  const notice = variants.locator('#bulk-notice');
+  check('Variant 4 explains the initial exception without a switch', await notice.getByRole('switch').count() === 0 && (await notice.innerText()).includes('для 1 товара'));
   await variants.locator('#amount').fill('267');
-  check('Opposite bounds share a single switch', await exceptionSwitch.count() === 1 && (await text(variants, '#bulk-notice')).includes('для 2 товаров'));
-  await exceptionSwitch.click();
-  check('One switch excludes both exceptions', await text(variants, '#done') === 'Применить скидку 14 товарам');
-  await exceptionSwitch.click();
+  check('Opposite bounds share one explanation', await notice.getByRole('status').count() === 1 && (await notice.innerText()).includes('для 2 товаров') && (await notice.innerText()).includes('ближайшую допустимую скидку'));
+  check('All selected items receive an amount including both exceptions', await text(variants, '#done') === 'Применить скидку 16 товарам' && await notice.getByRole('switch').count() === 0);
   await variants.locator('#amount').fill('85');
   check('Variant 4 confirms bulk discounts directly in the editor', await text(variants, '#done') === 'Применить скидку 16 товарам');
   await variants.locator('#done').click();
