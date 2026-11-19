@@ -85,12 +85,17 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;-webkit-t
   @keyframes limit-reveal{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 }
 
+.fourth-variant{--compact-header-height:98px}
 .fourth-variant .hero{height:354px}
+.fourth-variant .catalog-header{height:var(--compact-header-height)}
+.fourth-variant .compact-status{display:none}
+.fourth-variant .compact-title .back,.fourth-variant #sort-hint{top:0}
+.fourth-variant .catalog{min-height:calc(100% - var(--compact-header-height))}
 .future-toggle{position:absolute;inset:auto 12px 12px;display:flex;align-items:center;gap:8px;height:42px;padding:0 14px;border-radius:16px;background:#fff;font-size:13px;text-align:left}
 .future-toggle .disclosure{margin-left:auto}
 .sort-mode,.hint-sort{background:transparent;display:grid;place-items:center}
 .sort-mode{margin-left:auto;margin-right:8px;width:44px;height:38px;align-self:flex-end;z-index:1}
-.compact-title .sort-mode{position:absolute;right:0;top:48px}
+.compact-title .sort-mode{position:absolute;right:0;top:4px}
 #sort-hint{position:absolute;left:0;right:0;top:44px;z-index:18;height:178px;padding:6px 16px;background:linear-gradient(to bottom,rgba(255,255,255,.96) 65%,transparent);pointer-events:none;font-size:15px;line-height:20px}
 #sort-hint button{pointer-events:auto}
 .hint-sort{position:absolute;right:10px;top:6px;width:40px;height:40px}

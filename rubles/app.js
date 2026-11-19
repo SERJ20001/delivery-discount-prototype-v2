@@ -187,10 +187,19 @@ function renderCategoryNavigation() {
   }).join('');
   updateCategoryNavigation();
 }
+function catalogStart() {
+  if (!switchableCatalog) return $('.hero').offsetHeight;
+  return $('#catalog').offsetTop - parseFloat(getComputedStyle($('#catalog-header')).height);
+}
+
+function scrollToCatalog() {
+  $('#scroll').scrollTo({ top: catalogStart(), behavior: PrototypeMotion.scrollBehavior });
+}
+
 function updateCategoryNavigation() {
   const scroll = $('#scroll');
   const header = $('#catalog-header');
-  header.hidden = scroll.scrollTop < $('.hero').offsetHeight;
+  header.hidden = scroll.scrollTop + 0.5 < catalogStart();
   if (switchableCatalog && !header.hidden && !$('#screen').hidden && !sortHintSeen) {
     sortHintSeen = true;
     $('#sort-hint').hidden = false;
@@ -198,7 +207,7 @@ function updateCategoryNavigation() {
   if (header.hidden) $('#sort-hint').hidden = true;
   if (header.hidden) return;
   const groups = [...document.querySelectorAll('[data-group]')];
-  const active = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 1 ? groups.at(-1) : groups.findLast(group => group.offsetTop <= scroll.scrollTop + 150) || groups[0];
+  const active = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 1 ? groups.at(-1) : groups.findLast(group => group.offsetTop <= scroll.scrollTop + header.offsetHeight + 8) || groups[0];
   document.querySelectorAll('[data-jump]').forEach(button => {
     const selected = button.dataset.jump === active?.dataset.group;
     const changed = button.classList.contains('active') !== selected;
@@ -523,7 +532,9 @@ $('#apply').addEventListener('click', () => {
 document.querySelectorAll('[data-tab]').forEach(button => button.addEventListener('click', () => {
   PrototypeMotion.reset();
   state.tab = button.dataset.tab; state.selected.clear(); state.previews.clear();
-  $('#scroll').scrollTop = 0; render(false);
+  if (!switchableCatalog) $('#scroll').scrollTop = 0;
+  render(false);
+  if (switchableCatalog) scrollToCatalog();
   PrototypeMotion.animate($('#catalog'), [{ opacity: 0, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220 });
 }));
 document.querySelectorAll('.back').forEach(button => button.addEventListener('click', EntryScreen.back));
@@ -532,7 +543,7 @@ $('#category-nav').addEventListener('click', event => {
   const button = event.target.closest('[data-jump]');
   if (!button) return;
   const group = $(`[data-group="${button.dataset.jump}"]`);
-  $('#scroll').scrollTo({ top: Math.max($('.hero').offsetHeight, group.offsetTop - $('#catalog-header').offsetHeight), behavior: PrototypeMotion.scrollBehavior });
+  $('#scroll').scrollTo({ top: Math.max(catalogStart(), group.offsetTop - $('#catalog-header').offsetHeight), behavior: PrototypeMotion.scrollBehavior });
 });
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && state.editor) { event.preventDefault(); closeEditor(); }
@@ -691,14 +702,12 @@ function toggleGrouping() {
   dismissSortHint();
   sortByPrice = !sortByPrice;
   catalogGroups = sortByPrice ? priceCategories : departmentItems;
-  const scroll = $('#scroll');
-  const compact = !$('#catalog-header').hidden;
-  if (compact) scroll.scrollTop = $('.hero').offsetHeight;
   for (const button of document.querySelectorAll('.sort-mode')) {
     button.querySelector('img').src = asset(sortByPrice ? 'ffd41.svg' : '86600.svg');
     button.setAttribute('aria-label', sortByPrice ? 'Сгруппировать по категориям' : 'Сгруппировать по цене');
   }
   render(false);
+  scrollToCatalog();
   notify(sortByPrice ? 'Сортировка: по размеру цены' : 'Сортировка: по категориям', 3000);
 }
 

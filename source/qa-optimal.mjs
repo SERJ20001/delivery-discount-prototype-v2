@@ -261,7 +261,24 @@ try {
   await variants.locator('#dismiss-hint').click();
   await variants.locator('.compact-title .sort-mode').click();
   check('Sorting toggles from categories to prices', (await text(variants, '[data-category="0"]')) === 'До 1 000 ₽' && await text(variants, '#toast-message') === 'Сортировка: по размеру цены');
+  const catalogAligned = () => variants.waitForFunction(() => {
+    const header = document.querySelector('#catalog-header');
+    const catalog = document.querySelector('#catalog');
+    return !header.hidden && Math.abs(catalog.getBoundingClientRect().top - header.getBoundingClientRect().bottom) < 1;
+  });
+  await catalogAligned();
   await variants.locator('#scroll').evaluate(el => { el.scrollTop = 0; });
+  await variants.locator('.tabs .sort-mode').click();
+  await catalogAligned();
+  check('Sorting from the expanded hero lands at the first category beneath the 98px header', await variants.locator('#catalog-header').evaluate(el => el.offsetHeight === 98));
+  await variants.locator('.compact-title .sort-mode').click();
+  await variants.locator('#scroll').evaluate(el => { el.scrollTop = 0; });
+  await variants.locator('[data-tab="discounted"]').click();
+  await catalogAligned();
+  check('Switching to a single discounted product also collapses the hero', await variants.locator('[data-id="v4-sneakers"]').isVisible());
+  await variants.locator('#scroll').evaluate(el => { el.scrollTop = 0; });
+  await variants.locator('[data-tab="eligible"]').click();
+  await catalogAligned();
   await select(variants, 'v4-book');
   check('Variant 4 single selection uses the first preset', await text(variants, '[data-edit="v4-book"].discount-chip') === '100 ₽');
   await select(variants, 'v4-scarf');
