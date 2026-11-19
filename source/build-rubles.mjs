@@ -45,6 +45,12 @@ const manifestPath = path.join(root, 'asset-manifest-rubles.json');
 await updateEntryManifest(root, output, manifestPath);
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const newAssets = [
+  ['86600.svg', '3625:127172', [22.6241, 27.5], 'category sorting icon', '3574:114010'],
+  ['ffd41.svg', '3625:128641', [27, 28], 'price sorting icon', '3574:114010'],
+  ['40be5.svg', '3625:128235', [39, 39], 'sorting onboarding icon', '3574:114010'],
+  ['81750.svg', '3625:127150', [32, 18], 'new products switch off', '3574:114010'],
+  ['b764d.svg', '1:13292', [8, 16], 'settings disclosure', '3574:114010'],
+  ['76565.svg', '3623:60821', [16, 16], 'approximate amount icon', '3574:114010'],
   ['86592.svg', '3544:55840', [14, 16], 'original item edit icon'],
   ['38777.svg', '3544:59146', [10, 16], 'original small clear icon'],
   ['54616.svg', '3570:98312', [21, 21], 'inverse selected checkbox'],
@@ -88,6 +94,12 @@ for (const file of Object.keys(bundledAssets)) {
   throw new Error(`Missing asset provenance: ${file}`);
 }
 manifest.section = '3573:111220';
-const retired = ['9befd.svg', 'c8762.svg', 'f84ba.svg', '228b7.svg', 'a31ca.svg', '44895.png', 'd4af4.png', '3d0bd.png', '385c1.png', '38777.svg', '64152.svg', '8bc71.svg', '96048.svg', 'e157a.svg', 'e6ee2.svg', 'ec93c.svg', 'cffe9.png', 'd83ab.png'];
-for (const entry of manifest.assets) if (retired.some(name => entry.file === 'assets/current/' + name)) entry.used = false;
+const retired = ['9befd.svg', 'a31ca.svg', '38777.svg', '64152.svg', '8bc71.svg', '96048.svg', 'e157a.svg', 'e6ee2.svg', 'ec93c.svg', 'cffe9.png', 'd83ab.png'];
+const reused = ['c8762.svg', 'f84ba.svg', '228b7.svg', '44895.png', 'd4af4.png', '3d0bd.png', '385c1.png'];
+for (const entry of manifest.assets) {
+  if (!entry.file.startsWith('assets/current/')) continue;
+  const name = path.basename(entry.file);
+  if (retired.includes(name)) entry.used = false;
+  if (reused.includes(name)) entry.used = true;
+}
 await writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n');

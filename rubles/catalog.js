@@ -51,3 +51,15 @@ const priceCategories = [
     .filter(item => item.price >= from && item.price < to)
     .sort((left, right) => left.price - right.price)
 }));
+
+const priceInventory = [...priceItems, pricePreviousItem];
+const departmentItems = [
+  ['Дом и интерьер', ['mug', 'basket', 'lamp', 'espresso']],
+  ['Книги и музыка', ['book', 'piano']],
+  ['Одежда и аксессуары', ['scarf', 'backpack', 'sneakers']],
+  ['Спорт', ['dumbbells', 'bicycle']],
+  ['Электроника', ['keyboard', 'headphones', 'lens', 'tablet', 'camera', 'laptop']]
+].map(([name, ids]) => ({
+  name,
+  items: ids.map(id => priceInventory.find(item => item.id === 'v4-' + id))
+}));

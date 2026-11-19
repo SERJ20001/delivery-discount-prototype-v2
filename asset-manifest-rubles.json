@@ -505,7 +505,7 @@
       "id": "c8762",
       "path": "rubles/assets/current/c8762.svg",
       "kind": "image",
-      "used": false,
+      "used": true,
       "review": "agent-checked",
       "logical": [
         12,
@@ -744,7 +744,7 @@
       "id": "f84ba",
       "path": "rubles/assets/current/f84ba.svg",
       "kind": "image",
-      "used": false,
+      "used": true,
       "review": "agent-checked",
       "logical": [
         12,
@@ -872,7 +872,7 @@
       "id": "228b7",
       "path": "rubles/assets/current/228b7.svg",
       "kind": "image",
-      "used": false,
+      "used": true,
       "review": "agent-checked",
       "logical": [
         20,
@@ -963,7 +963,7 @@
       "file": "assets/current/385c1.png",
       "path": "rubles/assets/current/385c1.png",
       "kind": "image",
-      "used": false,
+      "used": true,
       "review": "agent-checked",
       "sizeBytes": 93480,
       "sha256": "b18df6daf036e26159c8f546392a5ae132c1b49042596db9bd9b116b7d72711b",
@@ -999,7 +999,7 @@
       "file": "assets/current/3d0bd.png",
       "path": "rubles/assets/current/3d0bd.png",
       "kind": "image",
-      "used": false,
+      "used": true,
       "review": "agent-checked",
       "sizeBytes": 93922,
       "sha256": "90c4ce118381f608db4a6c692fbe527d260ae2ca54007158ac2cf263370ced41",
@@ -1035,7 +1035,7 @@
       "file": "assets/current/44895.png",
       "path": "rubles/assets/current/44895.png",
       "kind": "image",
-      "used": false,
+      "used": true,
       "review": "agent-checked",
       "sizeBytes": 151093,
       "sha256": "c9e9de4a2edc0f749e32ef43e9675fe728397586c322ee65c4685b3bce169f7b",
@@ -1239,7 +1239,7 @@
       "file": "assets/current/d4af4.png",
       "path": "rubles/assets/current/d4af4.png",
       "kind": "image",
-      "used": false,
+      "used": true,
       "review": "agent-checked",
       "sizeBytes": 50678,
       "sha256": "4a37d43e43d110c084132093cda0cafc673989f0d3e8e63b204478c710c8a2ba",
@@ -2747,6 +2747,198 @@
         "type": "generated",
         "tool": "imagegen"
       }
+    },
+    {
+      "id": "86600",
+      "file": "assets/current/86600.svg",
+      "path": "rubles/assets/current/86600.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 607,
+      "sha256": "8406eba944edbb198a34aa6083450db1f78c76a4ea92e10eca92b02242c74d08",
+      "logical": [
+        22.6241,
+        27.5
+      ],
+      "physical": [
+        22.6241,
+        27.5
+      ],
+      "dimensions": [
+        22.6241,
+        27.5
+      ],
+      "scale": 1,
+      "role": "category sorting icon",
+      "sourceNodes": [
+        "3625:127172"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3625:127172"
+      },
+      "designContext": "3574:114010"
+    },
+    {
+      "id": "ffd41",
+      "file": "assets/current/ffd41.svg",
+      "path": "rubles/assets/current/ffd41.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 1334,
+      "sha256": "e996f8b930197e5c182844e90c1f811520e3fd74b7a403aa4fd3dcae0a5a45ac",
+      "logical": [
+        27,
+        28
+      ],
+      "physical": [
+        27,
+        28
+      ],
+      "dimensions": [
+        27,
+        28
+      ],
+      "scale": 1,
+      "role": "price sorting icon",
+      "sourceNodes": [
+        "3625:128641"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3625:128641"
+      },
+      "designContext": "3574:114010"
+    },
+    {
+      "id": "40be5",
+      "file": "assets/current/40be5.svg",
+      "path": "rubles/assets/current/40be5.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 725,
+      "sha256": "771bb0e2aefc6b753fea6afbfe0b909450b59c5cf04c652207dc531ee9c0827c",
+      "logical": [
+        39,
+        39
+      ],
+      "physical": [
+        39,
+        39
+      ],
+      "dimensions": [
+        39,
+        39
+      ],
+      "scale": 1,
+      "role": "sorting onboarding icon",
+      "sourceNodes": [
+        "3625:128235"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3625:128235"
+      },
+      "designContext": "3574:114010"
+    },
+    {
+      "id": "81750",
+      "file": "assets/current/81750.svg",
+      "path": "rubles/assets/current/81750.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 575,
+      "sha256": "31114a6ac3ed217411aea98c0637b3797460ca390d0819360eac18301f4b0ed0",
+      "logical": [
+        32,
+        18
+      ],
+      "physical": [
+        32,
+        18
+      ],
+      "dimensions": [
+        32,
+        18
+      ],
+      "scale": 1,
+      "role": "new products switch off",
+      "sourceNodes": [
+        "3625:127150"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3625:127150"
+      },
+      "designContext": "3574:114010"
+    },
+    {
+      "id": "b764d",
+      "file": "assets/current/b764d.svg",
+      "path": "rubles/assets/current/b764d.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 362,
+      "sha256": "98b2319a5d223d52b99fc64a47482742a77f292af2c4aba195c288952c550c71",
+      "logical": [
+        8,
+        16
+      ],
+      "physical": [
+        8,
+        16
+      ],
+      "dimensions": [
+        8,
+        16
+      ],
+      "scale": 1,
+      "role": "settings disclosure",
+      "sourceNodes": [
+        "1:13292"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "1:13292"
+      },
+      "designContext": "3574:114010"
+    },
+    {
+      "id": "76565",
+      "file": "assets/current/76565.svg",
+      "path": "rubles/assets/current/76565.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 1920,
+      "sha256": "ad50396c31772211dfaa0889f40246a999d3423995273725d7521f2dea58c874",
+      "logical": [
+        16,
+        16
+      ],
+      "physical": [
+        16,
+        16
+      ],
+      "dimensions": [
+        16,
+        16
+      ],
+      "scale": 1,
+      "role": "approximate amount icon",
+      "sourceNodes": [
+        "3623:60821"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3623:60821"
+      },
+      "designContext": "3574:114010"
     }
   ],
   "regions": [

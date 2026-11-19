@@ -1,12 +1,12 @@
 const { limits } = DiscountModel;
 const asset = name => `assets/current/${name}`;
 const variant = EntryScreen.variant;
-const sortByPrice = variant === 4;
+const switchableCatalog = variant === 4;
 const stageDiscounts = variant === 3;
-const catalogGroups = sortByPrice ? priceCategories : categories;
-const startingItem = sortByPrice ? pricePreviousItem : previousItem;
-const catalogItems = catalogGroups.flatMap(group => group.items);
-const inventory = sortByPrice ? catalogItems : [...catalogItems, startingItem];
+let sortByPrice = false;
+let catalogGroups = switchableCatalog ? departmentItems : categories;
+const startingItem = switchableCatalog ? pricePreviousItem : previousItem;
+const inventory = switchableCatalog ? priceInventory : [...categories.flatMap(group => group.items), startingItem];
 const state = { tab: 'eligible', selected: new Set(), applied: new Map([[startingItem.id, calculateAmount(startingItem, 300)]]), previews: new Map(), editor: null, groups: [], activeGroup: null };
 const money = value => `${new Intl.NumberFormat('ru-RU').format(value)} ₽`;
 const word = count => count % 10 === 1 && count % 100 !== 11 ? 'товар' : count % 10 >= 2 && count % 10 <= 4 && (count % 100 < 12 || count % 100 > 14) ? 'товара' : 'товаров';
@@ -15,7 +15,14 @@ const app = $('#app');
 const amountMeasure = document.createElement('canvas').getContext('2d');
 const visibleItems = () => inventory.filter(item => state.tab === 'eligible' ? !state.applied.has(item.id) : state.applied.has(item.id));
 const chosenItems = () => visibleItems().filter(item => state.selected.has(item.id));
-const groupItems = index => visibleItems().filter(item => catalogGroups[index].items.includes(item) || (!sortByPrice && index === 0 && item === startingItem));
+function groupItems(index) {
+  const items = catalogGroups[index].items;
+  const members = !switchableCatalog && index === 0 ? [...items, startingItem] : items;
+  return members.filter(item => state.applied.has(item.id) === (state.tab === 'discounted'));
+}
+let sortHintSeen = false;
+let futureEnabled = false;
+let infoMode = null;
 let toastTimer;
 let toastRun = 0;
 let editorTrigger;
@@ -66,7 +73,7 @@ function productMarkup(item) {
   return `<article class="product" data-id="${item.id}"><button class="product-select" data-select="${item.id}" aria-pressed="${selected}" aria-label="${selected ? 'Снять выбор' : 'Выбрать'}: ${item.title}, ${money(item.price)}"><span class="product-photo">${photo(item)}</span><span class="product-check">${checkbox(selected)}</span><span class="product-body"><strong class="product-price">${money(item.price)}</strong><span class="product-title">${item.title}</span></span></button>${chip}</article>`;
 }
 function presetButtons(item, selectedAmount, attribute) {
-  return singlePresets(item).map(amount => `<button class="chip ${amount === selectedAmount ? 'active' : ''}" ${attribute}="${amount}" aria-pressed="${amount === selectedAmount}">${money(amount)}</button>`).join('');
+  return singlePresets(item).map((amount, index) => `<button class="chip ${amount === selectedAmount ? 'active' : ''}" ${attribute}="${amount}" aria-pressed="${amount === selectedAmount}">${switchableCatalog && index === 0 ? `<img src="${asset('c8762.svg')}" alt="">` : ''}${money(amount)}</button>`).join('');
 }
 
 const groupLabels = { minimum: 'Минимальная', optimal: 'Оптимальная', maximum: 'Максимальная' };
@@ -148,7 +155,12 @@ function render(animate = true) {
     const amount = sharedCustomAmount(chosen);
     const custom = amount !== null;
     const optimal = !custom && chosen.every(item => preview(item).amount === optimalAmount(item).amount);
-    $('#options').innerHTML = `<button class="chip ${optimal ? 'active' : ''}" data-range="optimal" aria-pressed="${optimal}">Оптимальная</button><button class="chip custom-option ${custom ? 'active' : ''}" id="edit-bulk" aria-pressed="${custom}">${custom ? money(amount) : 'Своя'}<img src="${asset('49135.svg')}" alt=""></button>`;
+    const amounts = chosen.map(item => optimalAmount(item).amount);
+    const low = Math.min(...amounts);
+    const high = Math.max(...amounts);
+    const range = low === high ? money(low) : `${money(low).replace(' ₽', '')} – ${money(high)}`;
+    const label = switchableCatalog ? `<img src="${asset('c8762.svg')}" alt="">Оптимальная · ${range}` : 'Оптимальная';
+    $('#options').innerHTML = `<button class="chip ${optimal ? 'active' : ''}" data-range="optimal" aria-pressed="${optimal}">${label}</button><button class="chip custom-option ${custom ? 'active' : ''}" id="edit-bulk" aria-pressed="${custom}">${custom ? money(amount) : 'Своя'}<img src="${asset('49135.svg')}" alt=""></button>`;
   } else if (chosen.length === 1) {
     const item = chosen[0];
     const amount = preview(item).amount;
@@ -178,7 +190,12 @@ function renderCategoryNavigation() {
 function updateCategoryNavigation() {
   const scroll = $('#scroll');
   const header = $('#catalog-header');
-  header.hidden = scroll.scrollTop < 308;
+  header.hidden = scroll.scrollTop < $('.hero').offsetHeight;
+  if (switchableCatalog && !header.hidden && !$('#screen').hidden && !sortHintSeen) {
+    sortHintSeen = true;
+    $('#sort-hint').hidden = false;
+  }
+  if (header.hidden) $('#sort-hint').hidden = true;
   if (header.hidden) return;
   const groups = [...document.querySelectorAll('[data-group]')];
   const active = scroll.scrollTop + scroll.clientHeight >= scroll.scrollHeight - 1 ? groups.at(-1) : groups.findLast(group => group.offsetTop <= scroll.scrollTop + 150) || groups[0];
@@ -284,7 +301,7 @@ function updateEditor() {
   const connected = item && state.applied.has(item.id);
   const included = results.filter(entry => entry.include).length;
   $('#done').disabled = included === 0;
-  $('#done').textContent = item ? connected ? 'Сохранить' : 'Применить скидку'
+  $('#done').textContent = item ? connected ? 'Сохранить' : switchableCatalog ? 'Применить' : 'Применить скидку'
     : stageDiscounts ? 'Готово' : included ? `Применить скидку ${included} ${recipientWord(included)}` : 'Применить скидку';
   $('#cancel-edit').hidden = !item || connected;
   $('#remove-discount').hidden = !connected;
@@ -385,7 +402,7 @@ function stageBulkDiscount(results) {
   render();
   ($('#discount-groups [aria-pressed="true"]') ?? $('#apply')).focus({ preventScroll: true });
 }
-function notify(message) {
+function notify(message, duration = 2500) {
   hideToast();
   const run = toastRun;
   const toast = $('#toast');
@@ -395,7 +412,7 @@ function notify(message) {
   toastTimer = setTimeout(async () => {
     await PrototypeMotion.animate(toast, [{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(6px)' }], { duration: 180, persist: true });
     if (run === toastRun) hideToast();
-  }, 2500);
+  }, duration);
 }
 function hideToast() {
   toastRun++;
@@ -515,7 +532,7 @@ $('#category-nav').addEventListener('click', event => {
   const button = event.target.closest('[data-jump]');
   if (!button) return;
   const group = $(`[data-group="${button.dataset.jump}"]`);
-  $('#scroll').scrollTo({ top: Math.max(308, group.offsetTop - 142), behavior: PrototypeMotion.scrollBehavior });
+  $('#scroll').scrollTo({ top: Math.max($('.hero').offsetHeight, group.offsetTop - $('#catalog-header').offsetHeight), behavior: PrototypeMotion.scrollBehavior });
 });
 document.addEventListener('keydown', event => {
   if (event.key === 'Escape' && state.editor) { event.preventDefault(); closeEditor(); }
@@ -567,6 +584,8 @@ function enterDelivery() {
 }
 
 function leaveDelivery() {
+  closeInfoSheet();
+  $('#sort-hint').hidden = true;
   if (state.editor) closeEditor();
   hideToast();
   PrototypeMotion.reset();
@@ -618,4 +637,115 @@ async function start() {
 window.addEventListener('resize', resize);
 window.visualViewport?.addEventListener('resize', resize);
 $('#retry').addEventListener('click', start);
+function initializeFourthVariant() {
+  app.classList.add('fourth-variant');
+  for (const button of document.querySelectorAll('.sort-mode')) {
+    button.hidden = false;
+    button.addEventListener('click', toggleGrouping);
+  }
+  $('#future-toggle').hidden = false;
+  $('#recommendation-info').hidden = false;
+  $('#future-toggle').addEventListener('click', () => openInfoSheet('future'));
+  $('#recommendation-info').addEventListener('click', () => openInfoSheet('recommendation'));
+  $('#dismiss-hint').addEventListener('click', dismissSortHint);
+  $('.hint-sort').addEventListener('click', toggleGrouping);
+  $('#close-info').addEventListener('click', closeInfoSheet);
+  $('#info-overlay .cancel-area').addEventListener('click', closeInfoSheet);
+  $('#future-bands').innerHTML = priceCategories.map((band, index) =>
+    `<button class="chip" data-estimate="${index}">${band.name}</button>`).join('');
+  $('#future-bands').addEventListener('click', event => {
+    const button = event.target.closest('[data-estimate]');
+    if (!button) return;
+    showEstimate(Number(button.dataset.estimate));
+    button.scrollIntoView({ block: 'nearest', inline: 'center', behavior: PrototypeMotion.scrollBehavior });
+  });
+  $('#info-action').addEventListener('click', () => {
+    if (infoMode === 'future') {
+      futureEnabled = !futureEnabled;
+      $('#future-switch').src = asset(futureEnabled ? '5b3cf.svg' : '81750.svg');
+      $('#future-toggle').setAttribute('aria-pressed', String(futureEnabled));
+      notify(futureEnabled ? 'Будем включать скидку на доставку всем новым товарам' : 'Автоподключение скидки отключено');
+    }
+    closeInfoSheet();
+  });
+  $('#future-toggle').setAttribute('aria-pressed', 'false');
+  $('#info-overlay').addEventListener('keydown', event => {
+    if (event.key === 'Escape') closeInfoSheet();
+    if (event.key !== 'Tab') return;
+    const first = $('#close-info');
+    const last = $('#info-action');
+    if (event.shiftKey && event.target === first || !event.shiftKey && event.target === last) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus();
+    }
+  });
+}
+
+function dismissSortHint() {
+  $('#sort-hint').hidden = true;
+  sortHintSeen = true;
+  if (!$('#catalog-header').hidden) $('.compact-title .sort-mode').focus({ preventScroll: true });
+}
+
+function toggleGrouping() {
+  dismissSortHint();
+  sortByPrice = !sortByPrice;
+  catalogGroups = sortByPrice ? priceCategories : departmentItems;
+  const scroll = $('#scroll');
+  const compact = !$('#catalog-header').hidden;
+  if (compact) scroll.scrollTop = $('.hero').offsetHeight;
+  for (const button of document.querySelectorAll('.sort-mode')) {
+    button.querySelector('img').src = asset(sortByPrice ? 'ffd41.svg' : '86600.svg');
+    button.setAttribute('aria-label', sortByPrice ? 'Сгруппировать по категориям' : 'Сгруппировать по цене');
+  }
+  render(false);
+  notify(sortByPrice ? 'Сортировка: по размеру цены' : 'Сортировка: по категориям', 3000);
+}
+
+function showEstimate(index) {
+  const expensive = priceCategories.at(-1).items;
+  const estimates = [[100, 50, 500], [500, 100, 1000], [800, 350, 1400], [900, 450, 5800]];
+  const [example, minimum, maximum] = estimates[index] ?? [
+    optimalAmount(expensive[Math.floor(expensive.length / 2)]).amount,
+    Math.min(...expensive.map(item => limits(item.price).minimum)),
+    Math.max(...expensive.map(item => limits(item.price).maximum))
+  ];
+  $('#estimate-value').textContent = money(example);
+  $('#estimate-range').textContent = `от ${minimum.toLocaleString('ru-RU')} до ${money(maximum)}`;
+  for (const button of $('#future-bands').children) {
+    const selected = Number(button.dataset.estimate) === index;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  }
+}
+
+function openInfoSheet(mode) {
+  infoMode = mode;
+  const future = mode === 'future';
+  $('#future-details').hidden = !future;
+  $('#recommendation-details').hidden = future;
+  $('#info-title').textContent = future ? 'Включать новым товарам скидку на доставку?' : 'Нейросеть рекомендует скидку';
+  $('#info-action').textContent = future ? futureEnabled ? 'Отключить для новых товаров' : 'Включать новым товарам' : 'Круто!';
+  $('#info-action').classList.toggle('secondary', !future);
+  $('#info-overlay').hidden = false;
+  $('#screen').inert = true;
+  if (future) {
+    showEstimate(0);
+    $('#future-bands').scrollLeft = 0;
+  }
+  hideToast();
+  $('#close-info').focus({ preventScroll: true });
+  PrototypeMotion.animate($('.info-sheet'), [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], { duration: 240 });
+}
+
+function closeInfoSheet() {
+  if (!infoMode) return;
+  const trigger = infoMode === 'future' ? $('#future-toggle') : $('#recommendation-info');
+  infoMode = null;
+  $('#info-overlay').hidden = true;
+  $('#screen').inert = false;
+  trigger.focus({ preventScroll: true });
+}
+
+if (switchableCatalog) initializeFourthVariant();
 start();

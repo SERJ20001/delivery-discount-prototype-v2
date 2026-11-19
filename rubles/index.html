@@ -6,13 +6,13 @@
 <meta name="theme-color" content="#606060">
 <title>Скидка на доставку · сумма в рублях</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="style.css?v=9411fb08ca36">
+<link rel="stylesheet" href="style.css?v=945346b4dab2">
 <link rel="stylesheet" href="entry-screen.css?v=be96fa2e6412">
 <script src="entry-screen.js?v=7ead4009a8e1" defer></script>
 <script src="discount-model.js?v=f939c2743eb1" defer></script>
-<script src="catalog.js?v=3d4bbd392362" defer></script>
+<script src="catalog.js?v=81df4cb6707f" defer></script>
 <script src="motion.js?v=08ba48accc62" defer></script>
-<script src="app.js?v=1b7082fec465" defer></script>
+<script src="app.js?v=97b5082b3c5d" defer></script>
 </head>
 <body>
 <div id="loading" role="status"><p id="loading-copy">Загружаем прототип…</p><button id="retry" hidden>Повторить</button></div>
@@ -23,7 +23,7 @@
 <a href="?variant=1#offers" data-variant="1"><span>Вариант 1</span><strong>Автоматические пределы</strong><p>Если общая скидка выходит за пределы товара, ему назначается ближайшая допустимая сумма.</p></a>
 <a href="?variant=2#offers" data-variant="2"><span>Вариант 2</span><strong>Выбор товаров по пределам</strong><p>Можно применить минимальную или максимальную скидку либо исключить товары с таким ограничением.</p></a>
 <a href="?variant=3#offers" data-variant="3"><span>Вариант 3</span><strong>Настройка по группам</strong><p>После ввода суммы товары делятся на группы. Скидку каждой группы можно изменить перед общим применением.</p></a>
-<a href="?variant=4#offers" data-variant="4"><span>Вариант 4</span><strong>Группировка по цене</strong><p>Товары собраны по ценовым диапазонам. Свою сумму можно сразу применить к выбранным товарам из шторки.</p></a>
+<a href="?variant=4#offers" data-variant="4"><span>Вариант 4</span><strong>Категории и цены</strong><p>Переключайте группировку товаров, смотрите рекомендации ИИ и подключайте скидку для новых объявлений.</p></a>
 </nav>
 </section>
 <section id="offers-screen" class="offers-screen" hidden aria-labelledby="offers-title">
@@ -56,19 +56,34 @@
 <button class="back" aria-label="Назад"><img src="assets/current/f178c.svg" alt=""></button>
 <div class="hero-copy"><h1>Скидка<br>на доставку</h1><p>Чтобы сделать товары<br>привлекательнее</p></div>
 <div class="metrics"><div class="metric"><strong>x2,5</strong><span>Растет скорость<br>продажи</span></div><div class="metric" id="buyers-metric"><strong>x3</strong><span>Растёт количество<br>покупателей</span></div></div>
+<button id="future-toggle" class="future-toggle" aria-haspopup="dialog" hidden><img id="future-switch" src="assets/current/81750.svg" alt="">Включать на новые товары<img class="disclosure" src="assets/current/b764d.svg" alt=""></button>
 </section>
-<nav class="tabs" aria-label="Товары"><button class="tab active" data-tab="eligible"><span>Подходят</span><small id="eligible-count"></small></button><button class="tab" data-tab="discounted"><span>Со скидкой</span><small id="discounted-count"></small></button></nav>
+<nav class="tabs" aria-label="Товары"><button class="tab active" data-tab="eligible"><span>Подходят</span><small id="eligible-count"></small></button><button class="tab" data-tab="discounted"><span>Со скидкой</span><small id="discounted-count"></small></button><button class="sort-mode" aria-label="Изменить группировку товаров" hidden><img src="assets/current/86600.svg" alt=""></button></nav>
 <section id="catalog" class="catalog" aria-label="Список товаров"></section></div>
-<header class="catalog-header" id="catalog-header" hidden><div class="compact-status"><img src="assets/current/35e2b.svg" alt=""></div><div class="compact-title"><button class="back" aria-label="Назад к спецпредложениям"><img src="assets/current/f178c.svg" alt=""></button><strong>Скидка на доставку</strong></div><nav class="category-nav" id="category-nav" aria-label="Категории товаров"></nav></header>
+<header class="catalog-header" id="catalog-header" hidden><div class="compact-status"><img src="assets/current/35e2b.svg" alt=""></div><div class="compact-title"><button class="back" aria-label="Назад к спецпредложениям"><img src="assets/current/f178c.svg" alt=""></button><strong>Скидка на доставку</strong><button class="sort-mode" aria-label="Изменить группировку товаров" hidden><img src="assets/current/86600.svg" alt=""></button></div><nav class="category-nav" id="category-nav" aria-label="Категории товаров"></nav></header>
+<aside id="sort-hint" hidden><p>Выбирайте отображение товаров<br>по категориям или по ценам</p><button class="hint-sort" aria-label="Переключить группировку"><img src="assets/current/40be5.svg" alt=""></button><button id="dismiss-hint">Ок, понятно</button></aside>
 <section class="selection">
 <button class="count-pill" id="select-all" aria-pressed="false"><span class="count-check" aria-hidden="true"><img src="assets/current/54616.svg" alt=""></span><span id="selection-count"></span></button>
 <div class="discount-groups" id="discount-groups" role="group" aria-label="Группы выбранных товаров" hidden></div>
 <div class="calculator">
+<button id="recommendation-info" hidden>ИИ подобрал скидки для товаров <img src="assets/current/f84ba.svg" alt=""></button>
 <div class="calculator-controls">
 <div class="options" id="options"></div>
 <button class="primary" id="apply">Применить</button>
 </div><div class="home"><span></span></div>
 </div></section></div>
+<section id="info-overlay" class="info-overlay" hidden>
+<button class="cancel-area" aria-label="Закрыть шторку" tabindex="-1"></button>
+<div class="info-sheet" role="dialog" aria-modal="true" aria-labelledby="info-title" tabindex="-1">
+<div class="sheet-handle"></div><button id="close-info" aria-label="Закрыть"><img src="assets/current/228b7.svg" alt=""></button>
+<div class="info-body"><h2 id="info-title"></h2>
+<div id="future-details"><p>Нейросеть будет автоматически подключать новым объявлениям скидку</p><h3>Если цена товара</h3><div id="future-bands" role="group" aria-label="Цена товара"></div><h3>Скидка на доставку составит:</h3><div class="estimate" aria-live="polite"><strong><img src="assets/current/76565.svg" alt="Примерно"><span id="estimate-value"></span></strong><p>ИИ выберет скидку из диапазона<br><span id="estimate-range"></span> и установит её на товар</p></div></div>
+<div id="recommendation-details" hidden>
+<p><img src="assets/current/44895.png" alt="">Нейросеть узнала, что помогает другим продавать похожие товары</p>
+<p><img src="assets/current/d4af4.png" alt="">И определила оптимальную скидку для вашего товара</p>
+<p><img src="assets/current/3d0bd.png" alt="">Для нескольких товаров ИИ может предложить разные скидки</p>
+<p><img src="assets/current/385c1.png" alt="">Нейросеть рекомендует размер скидки индивидуально по товарам</p>
+</div></div><div class="info-actions"><button class="primary" id="info-action"></button><div class="home"><span></span></div></div></div></section>
 <section id="editor" class="editor" role="dialog" aria-modal="true" aria-label="Настройка скидки" hidden>
 <button id="cancel-area" class="cancel-area" aria-label="Отменить изменение"></button>
 <div class="editor-stack">
