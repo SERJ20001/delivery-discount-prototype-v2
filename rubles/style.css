@@ -95,11 +95,21 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;-webkit-t
 .future-toggle .disclosure{margin-left:auto}
 .sort-mode,.hint-sort{background:transparent;display:grid;place-items:center}
 .sort-mode{margin-left:auto;margin-right:8px;width:44px;height:38px;align-self:flex-end;z-index:1}
-.compact-title .sort-mode{position:absolute;right:0;top:4px}
+.sort-mode img{grid-area:1/1}
+.sort-price,.price-grouping .sort-category{opacity:0;transform:translateY(3px) scale(.86)}
+.price-grouping .sort-price{opacity:1;transform:none}
+.compact-title .sort-mode{position:absolute;right:2px;top:2px;margin:0;width:44px;height:44px}
 #sort-hint{position:absolute;left:0;right:0;top:44px;z-index:18;height:178px;padding:6px 16px;background:linear-gradient(to bottom,rgba(255,255,255,.96) 65%,transparent);pointer-events:none;font-size:15px;line-height:20px}
 #sort-hint button{pointer-events:auto}
-.hint-sort{position:absolute;right:10px;top:6px;width:40px;height:40px}
-#dismiss-hint{margin-top:10px;background:#f2f1f0;border-radius:12px;padding:8px 14px}
+.hint-sort{position:absolute;right:8px;top:4px;width:44px;height:44px;padding:0}
+.hint-sort::before{content:"";position:absolute;inset:4px;border:1.5px dashed #141414;border-radius:50%}
+#dismiss-hint{margin-top:12px;width:117px;height:36px;background:#f2f1f0;border-radius:12px;font-size:15px}
+@media (prefers-reduced-motion:no-preference){
+  .fourth-variant .sort-mode img{transition:opacity 160ms ease,transform 210ms cubic-bezier(.22,.8,.25,1)}
+  .fourth-variant .catalog-header:not([hidden]){animation:compact-arrival 190ms cubic-bezier(.22,.8,.25,1)}
+  .fourth-variant #sort-hint:not([hidden]){animation:compact-arrival 220ms ease-out}
+  @keyframes compact-arrival{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+}
 .fourth-variant .calculator{background:#9361eb}
 #recommendation-info{width:100%;display:flex;align-items:center;justify-content:center;gap:5px;background:transparent;color:white;height:34px;font-size:13px}
 .fourth-variant .calculator-controls{border-radius:24px 24px 0 0}

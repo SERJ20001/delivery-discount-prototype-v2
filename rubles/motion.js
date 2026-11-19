@@ -91,6 +91,27 @@ const PrototypeMotion = (() => {
     });
   }
 
+  function regroup(previous) {
+    if (!previous.size || preference.matches) return;
+    const viewport = document.querySelector('#scroll').getBoundingClientRect();
+    const factor = scale();
+    let entering = 0;
+    for (const row of document.querySelectorAll('#catalog .product')) {
+      const next = row.getBoundingClientRect();
+      if (next.bottom < viewport.top || next.top > viewport.bottom) continue;
+      const old = previous.get(row.dataset.id);
+      const delta = old ? (old.top - next.top) / factor : Infinity;
+      if (Math.abs(delta) < 1) continue;
+      if (Math.abs(delta) <= 150) {
+        moveFrom(row, old, { duration: 310 });
+      } else {
+        animate(row, [{ opacity: .15, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], {
+          duration: 240, delay: Math.min(entering++, 4) * 16
+        });
+      }
+    }
+  }
+
   function captureSelection(willShow) {
     const calculator = document.querySelector('.calculator');
     const pill = document.querySelector('#select-all');
@@ -195,5 +216,5 @@ const PrototypeMotion = (() => {
     scroll.scrollTo({ top: scroll.scrollTop, behavior: 'auto' });
   }
   preference.addEventListener('change', reset);
-  return { animate, cancel, clearGhosts, clone, snapshot, layout, captureSelection, selection, openEditor, closeEditor, openSheet, closeSheet, keepInView, reset, get scrollBehavior() { return preference.matches ? 'auto' : 'smooth'; } };
+  return { animate, cancel, clearGhosts, clone, snapshot, layout, regroup, captureSelection, selection, openEditor, closeEditor, openSheet, closeSheet, keepInView, reset, get scrollBehavior() { return preference.matches ? 'auto' : 'smooth'; } };
 })();

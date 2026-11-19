@@ -6,13 +6,13 @@
 <meta name="theme-color" content="#606060">
 <title>Скидка на доставку · сумма в рублях</title>
 <link rel="icon" href="data:,">
-<link rel="stylesheet" href="style.css?v=a22fa85a213b">
+<link rel="stylesheet" href="style.css?v=3db25e32f5fc">
 <link rel="stylesheet" href="entry-screen.css?v=be96fa2e6412">
 <script src="entry-screen.js?v=7ead4009a8e1" defer></script>
 <script src="discount-model.js?v=f939c2743eb1" defer></script>
 <script src="catalog.js?v=81df4cb6707f" defer></script>
-<script src="motion.js?v=08ba48accc62" defer></script>
-<script src="app.js?v=865186bc08fe" defer></script>
+<script src="motion.js?v=532dda26f18f" defer></script>
+<script src="app.js?v=f3e02c10b1f8" defer></script>
 </head>
 <body>
 <div id="loading" role="status"><p id="loading-copy">Загружаем прототип…</p><button id="retry" hidden>Повторить</button></div>
@@ -58,10 +58,10 @@
 <div class="metrics"><div class="metric"><strong>x2,5</strong><span>Растет скорость<br>продажи</span></div><div class="metric" id="buyers-metric"><strong>x3</strong><span>Растёт количество<br>покупателей</span></div></div>
 <button id="future-toggle" class="future-toggle" aria-haspopup="dialog" hidden><img id="future-switch" src="assets/current/81750.svg" alt="">Включать на новые товары<img class="disclosure" src="assets/current/b764d.svg" alt=""></button>
 </section>
-<nav class="tabs" aria-label="Товары"><button class="tab active" data-tab="eligible"><span>Подходят</span><small id="eligible-count"></small></button><button class="tab" data-tab="discounted"><span>Со скидкой</span><small id="discounted-count"></small></button><button class="sort-mode" aria-label="Изменить группировку товаров" hidden><img src="assets/current/86600.svg" alt=""></button></nav>
+<nav class="tabs" aria-label="Товары"><button class="tab active" data-tab="eligible"><span>Подходят</span><small id="eligible-count"></small></button><button class="tab" data-tab="discounted"><span>Со скидкой</span><small id="discounted-count"></small></button><button class="sort-mode" aria-label="Изменить группировку товаров" hidden><img class="sort-category" src="assets/current/7a27a.svg" alt=""><img class="sort-price" src="assets/current/c1f05.svg" alt=""></button></nav>
 <section id="catalog" class="catalog" aria-label="Список товаров"></section></div>
-<header class="catalog-header" id="catalog-header" hidden><div class="compact-status"><img src="assets/current/35e2b.svg" alt=""></div><div class="compact-title"><button class="back" aria-label="Назад к спецпредложениям"><img src="assets/current/f178c.svg" alt=""></button><strong>Скидка на доставку</strong><button class="sort-mode" aria-label="Изменить группировку товаров" hidden><img src="assets/current/86600.svg" alt=""></button></div><nav class="category-nav" id="category-nav" aria-label="Категории товаров"></nav></header>
-<aside id="sort-hint" hidden><p>Выбирайте отображение товаров<br>по категориям или по ценам</p><button class="hint-sort" aria-label="Переключить группировку"><img src="assets/current/40be5.svg" alt=""></button><button id="dismiss-hint">Ок, понятно</button></aside>
+<header class="catalog-header" id="catalog-header" hidden><div class="compact-status"><img src="assets/current/35e2b.svg" alt=""></div><div class="compact-title"><button class="back" aria-label="Назад к спецпредложениям"><img src="assets/current/f178c.svg" alt=""></button><strong>Скидка на доставку</strong><button class="sort-mode" aria-label="Изменить группировку товаров" hidden><img class="sort-category" src="assets/current/7a27a.svg" alt=""><img class="sort-price" src="assets/current/c1f05.svg" alt=""></button></div><nav class="category-nav" id="category-nav" aria-label="Категории товаров"></nav></header>
+<aside id="sort-hint" hidden><p>Выбирайте отображение товаров<br>по категориям или по ценам</p><button class="hint-sort" aria-label="Переключить группировку"><img src="assets/current/7a27a.svg" alt=""></button><button id="dismiss-hint">Ок, понятно</button></aside>
 <section class="selection">
 <button class="count-pill" id="select-all" aria-pressed="false"><span class="count-check" aria-hidden="true"><img src="assets/current/54616.svg" alt=""></span><span id="selection-count"></span></button>
 <div class="discount-groups" id="discount-groups" role="group" aria-label="Группы выбранных товаров" hidden></div>

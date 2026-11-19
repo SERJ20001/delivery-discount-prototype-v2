@@ -45,6 +45,8 @@ const manifestPath = path.join(root, 'asset-manifest-rubles.json');
 await updateEntryManifest(root, output, manifestPath);
 const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
 const newAssets = [
+  ['7a27a.svg', '3625:131088', [28, 28], 'category grouping and onboarding', '3625:131240'],
+  ['c1f05.svg', '3625:131164', [28, 28], 'price grouping', '3625:131240'],
   ['86600.svg', '3625:127172', [22.6241, 27.5], 'category sorting icon', '3574:114010'],
   ['ffd41.svg', '3625:128641', [27, 28], 'price sorting icon', '3574:114010'],
   ['40be5.svg', '3625:128235', [39, 39], 'sorting onboarding icon', '3574:114010'],
@@ -94,7 +96,7 @@ for (const file of Object.keys(bundledAssets)) {
   throw new Error(`Missing asset provenance: ${file}`);
 }
 manifest.section = '3573:111220';
-const retired = ['9befd.svg', 'a31ca.svg', '38777.svg', '64152.svg', '8bc71.svg', '96048.svg', 'e157a.svg', 'e6ee2.svg', 'ec93c.svg', 'cffe9.png', 'd83ab.png'];
+const retired = ['86600.svg', 'ffd41.svg', '40be5.svg', '9befd.svg', 'a31ca.svg', '38777.svg', '64152.svg', '8bc71.svg', '96048.svg', 'e157a.svg', 'e6ee2.svg', 'ec93c.svg', 'cffe9.png', 'd83ab.png'];
 const reused = ['c8762.svg', 'f84ba.svg', '228b7.svg', '44895.png', 'd4af4.png', '3d0bd.png', '385c1.png'];
 for (const entry of manifest.assets) {
   if (!entry.file.startsWith('assets/current/')) continue;

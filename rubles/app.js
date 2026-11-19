@@ -595,7 +595,7 @@ function enterDelivery() {
 }
 
 function leaveDelivery() {
-  closeInfoSheet();
+  closeInfoSheet(false);
   $('#sort-hint').hidden = true;
   if (state.editor) closeEditor();
   hideToast();
@@ -667,7 +667,10 @@ function initializeFourthVariant() {
   $('#future-bands').addEventListener('click', event => {
     const button = event.target.closest('[data-estimate]');
     if (!button) return;
-    showEstimate(Number(button.dataset.estimate));
+    if (button.getAttribute('aria-pressed') !== 'true') {
+      showEstimate(Number(button.dataset.estimate));
+      PrototypeMotion.animate($('.estimate strong'), [{ transform: 'translateY(4px)', opacity: .4 }, { transform: 'none', opacity: 1 }], { duration: 180 });
+    }
     button.scrollIntoView({ block: 'nearest', inline: 'center', behavior: PrototypeMotion.scrollBehavior });
   });
   $('#info-action').addEventListener('click', () => {
@@ -699,14 +702,16 @@ function dismissSortHint() {
 }
 
 function toggleGrouping() {
+  const previous = PrototypeMotion.snapshot();
   dismissSortHint();
   sortByPrice = !sortByPrice;
   catalogGroups = sortByPrice ? priceCategories : departmentItems;
+  app.classList.toggle('price-grouping', sortByPrice);
   for (const button of document.querySelectorAll('.sort-mode')) {
-    button.querySelector('img').src = asset(sortByPrice ? 'ffd41.svg' : '86600.svg');
     button.setAttribute('aria-label', sortByPrice ? 'Сгруппировать по категориям' : 'Сгруппировать по цене');
   }
   render(false);
+  PrototypeMotion.regroup(previous);
   scrollToCatalog();
   notify(sortByPrice ? 'Сортировка: по размеру цены' : 'Сортировка: по категориям', 3000);
 }
@@ -736,6 +741,7 @@ function openInfoSheet(mode) {
   $('#info-title').textContent = future ? 'Включать новым товарам скидку на доставку?' : 'Нейросеть рекомендует скидку';
   $('#info-action').textContent = future ? futureEnabled ? 'Отключить для новых товаров' : 'Включать новым товарам' : 'Круто!';
   $('#info-action').classList.toggle('secondary', !future);
+  $('#info-overlay').inert = false;
   $('#info-overlay').hidden = false;
   $('#screen').inert = true;
   if (future) {
@@ -744,14 +750,27 @@ function openInfoSheet(mode) {
   }
   hideToast();
   $('#close-info').focus({ preventScroll: true });
-  PrototypeMotion.animate($('.info-sheet'), [{ transform: 'translateY(100%)' }, { transform: 'translateY(0)' }], { duration: 240 });
+  PrototypeMotion.animate($('#info-overlay'), [{ backgroundColor: '#0000' }, { backgroundColor: '#0009' }], { duration: 200 });
+  PrototypeMotion.animate($('.info-sheet'), [{ transform: 'translateY(100%)' }, { transform: 'none' }], { duration: 300 });
 }
 
-function closeInfoSheet() {
-  if (!infoMode) return;
+async function closeInfoSheet(animate = true) {
+  const overlay = $('#info-overlay');
+  if (overlay.hidden || (overlay.inert && animate)) return;
   const trigger = infoMode === 'future' ? $('#future-toggle') : $('#recommendation-info');
+  const sheet = $('.info-sheet');
+  if (animate) {
+    overlay.inert = true;
+    await Promise.all([
+      PrototypeMotion.animate(overlay, [{ backgroundColor: getComputedStyle(overlay).backgroundColor }, { backgroundColor: '#0000' }], { duration: 180, persist: true }),
+      PrototypeMotion.animate(sheet, [{ transform: getComputedStyle(sheet).transform }, { transform: 'translateY(100%)' }], { duration: 220, persist: true })
+    ]);
+    if (!overlay.inert || overlay.hidden) return;
+  }
+  PrototypeMotion.cancel(overlay);
   infoMode = null;
-  $('#info-overlay').hidden = true;
+  overlay.hidden = true;
+  overlay.inert = false;
   $('#screen').inert = false;
   trigger.focus({ preventScroll: true });
 }

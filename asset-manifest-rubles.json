@@ -2753,7 +2753,7 @@
       "file": "assets/current/86600.svg",
       "path": "rubles/assets/current/86600.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 607,
       "sha256": "8406eba944edbb198a34aa6083450db1f78c76a4ea92e10eca92b02242c74d08",
@@ -2785,7 +2785,7 @@
       "file": "assets/current/ffd41.svg",
       "path": "rubles/assets/current/ffd41.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 1334,
       "sha256": "e996f8b930197e5c182844e90c1f811520e3fd74b7a403aa4fd3dcae0a5a45ac",
@@ -2817,7 +2817,7 @@
       "file": "assets/current/40be5.svg",
       "path": "rubles/assets/current/40be5.svg",
       "kind": "image",
-      "used": true,
+      "used": false,
       "review": "agent-checked",
       "sizeBytes": 725,
       "sha256": "771bb0e2aefc6b753fea6afbfe0b909450b59c5cf04c652207dc531ee9c0827c",
@@ -2939,6 +2939,70 @@
         "nodeId": "3623:60821"
       },
       "designContext": "3574:114010"
+    },
+    {
+      "id": "7a27a",
+      "file": "assets/current/7a27a.svg",
+      "path": "rubles/assets/current/7a27a.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 878,
+      "sha256": "c1f15ed7d662e5fe7ba9b8549cb6ef2458b4ce7827edd672bc80eab8852da88f",
+      "logical": [
+        28,
+        28
+      ],
+      "physical": [
+        28,
+        28
+      ],
+      "dimensions": [
+        28,
+        28
+      ],
+      "scale": 1,
+      "role": "category grouping and onboarding",
+      "sourceNodes": [
+        "3625:131088"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3625:131088"
+      },
+      "designContext": "3625:131240"
+    },
+    {
+      "id": "c1f05",
+      "file": "assets/current/c1f05.svg",
+      "path": "rubles/assets/current/c1f05.svg",
+      "kind": "image",
+      "used": true,
+      "review": "agent-checked",
+      "sizeBytes": 1048,
+      "sha256": "c398ae9b329b6552f985d84209650d8168382f4b6f6b7d62d4945d33aa5e01a2",
+      "logical": [
+        28,
+        28
+      ],
+      "physical": [
+        28,
+        28
+      ],
+      "dimensions": [
+        28,
+        28
+      ],
+      "scale": 1,
+      "role": "price grouping",
+      "sourceNodes": [
+        "3625:131164"
+      ],
+      "source": {
+        "fileKey": "OaolVHaabrE8Nv9upVA0wD",
+        "nodeId": "3625:131164"
+      },
+      "designContext": "3625:131240"
     }
   ],
   "regions": [
