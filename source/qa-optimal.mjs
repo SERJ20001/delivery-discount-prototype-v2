@@ -283,6 +283,11 @@ try {
   check('Variant 4 single selection uses the first preset', await text(variants, '[data-edit="v4-book"].discount-chip') === '100 ₽');
   await select(variants, 'v4-scarf');
   const optimalButton = variants.locator('[data-range="optimal"]');
+  await variants.locator('#edit-bulk').click();
+  check('Variant 4 offers the intersection for book and scarf', (await text(variants, '#maximum-label')) === '350 ₽' && await variants.locator('#bulk-notice').isHidden());
+  await variants.locator('#amount').fill('999');
+  check('A common range never needs exception switches', await text(variants, '#limit-tooltip') === 'Максимальная: 350 ₽' && await variants.locator('#bulk-notice').isHidden());
+  await variants.keyboard.press('Escape');
   await variants.locator('#recommendation-info').click();
   check('Recommendation explanation is available for selected products', await text(variants, '#info-title') === 'Нейросеть рекомендует скидку');
   await shot(variants, 'v4-recommendation');
@@ -300,6 +305,13 @@ try {
   await variants.locator('[data-tab="discounted"]').click();
   check('Applying the default saves its previewed amounts', await text(variants, '[data-edit="v4-book"].discount-chip') === '190 ₽' && await text(variants, '[data-edit="v4-scarf"].discount-chip') === '322 ₽');
   await openVariant(4);
+  const exceptionSwitch = variants.locator('#bulk-notice [role="switch"]');
+  check('Variant 4 starts with only one exception for the full catalog', await exceptionSwitch.count() === 1 && /для 1 товара$/.test(await text(variants, '#bulk-notice [role="status"]')));
+  await variants.locator('#amount').fill('267');
+  check('Opposite bounds share a single switch', await exceptionSwitch.count() === 1 && (await text(variants, '#bulk-notice')).includes('для 2 товаров'));
+  await exceptionSwitch.click();
+  check('One switch excludes both exceptions', await text(variants, '#done') === 'Применить скидку 14 товарам');
+  await exceptionSwitch.click();
   await variants.locator('#amount').fill('85');
   check('Variant 4 confirms bulk discounts directly in the editor', await text(variants, '#done') === 'Применить скидку 16 товарам');
   await variants.locator('#done').click();
