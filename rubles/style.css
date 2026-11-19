@@ -94,6 +94,7 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;-webkit-t
 .future-toggle .disclosure{margin-left:auto}
 .sort-mode,.hint-sort{background:transparent;display:grid;place-items:center}
 .sort-mode{margin-left:auto;margin-right:8px;width:44px;height:38px;align-self:flex-end;z-index:1}
+.tabs .sort-mode{margin-bottom:6px}
 .sort-mode img{grid-area:1/1}
 .sort-price,.price-grouping .sort-category{opacity:0;transform:translateY(3px) scale(.86)}
 .price-grouping .sort-price{opacity:1;transform:none}
