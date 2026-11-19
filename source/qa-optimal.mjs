@@ -199,6 +199,21 @@ try {
   await standalone.locator('#done').click();
   check('Standalone supports bulk apply without network', await text(standalone, '#discounted-count') === '11' && external.length === 0);
   const variants = await context.newPage();
+  async function checkSheetScroll(lastContent) {
+    await variants.setViewportSize({ width: 375, height: 350 });
+    await variants.waitForFunction(() => document.querySelector('#stage').clientHeight === window.innerHeight);
+    const layout = await variants.locator('.info-body').evaluate((body, selector) => {
+      const footer = document.querySelector('.info-actions');
+      const footerTop = footer.getBoundingClientRect().top;
+      body.scrollTop = body.scrollHeight;
+      const contentBottom = body.querySelector(selector).getBoundingClientRect().bottom;
+      return body.scrollTop > 0 && body.getBoundingClientRect().bottom <= footerTop + 1 &&
+        contentBottom <= footerTop - 8 && footer.getBoundingClientRect().top === footerTop &&
+        document.querySelector('#info-action').getBoundingClientRect().bottom <= window.innerHeight;
+    }, lastContent);
+    check(`Short sheet scrolls ${lastContent} fully above its fixed action`, layout);
+    await variants.setViewportSize({ width: 375, height: 850 });
+  }
   const openVariant = async number => {
     await variants.goto(origin);
     await variants.locator(`[data-variant="${number}"]`).click();
@@ -283,6 +298,7 @@ try {
   check('Future discounts open with the first price example', await text(variants, '#estimate-value') === '100 ₽');
   await variants.locator('[data-estimate="2"]').click();
   check('Future discounts update example and limits', await text(variants, '#estimate-value') === '800 ₽' && (await text(variants, '#estimate-range')).replaceAll(' ', ' ') === 'от 350 до 1 400 ₽');
+  await checkSheetScroll('.estimate');
   await shot(variants, 'v4-future');
   await variants.locator('#info-action').click();
   check('Future discounts enable without changing the current catalog', await variants.locator('#future-toggle').getAttribute('aria-pressed') === 'true' && await text(variants, '#discounted-count') === '1');
@@ -319,6 +335,7 @@ try {
   await variants.keyboard.press('Escape');
   await variants.locator('#recommendation-info').click();
   check('Recommendation explanation is available for selected products', await text(variants, '#info-title') === 'Нейросеть рекомендует скидку');
+  await checkSheetScroll('#recommendation-details p:last-child');
   await shot(variants, 'v4-recommendation');
   await variants.locator('#info-action').click();
   await variants.locator('#scroll').evaluate(el => { el.scrollTop = 460; });

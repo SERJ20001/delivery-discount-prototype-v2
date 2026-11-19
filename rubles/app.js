@@ -772,6 +772,7 @@ function openInfoSheet(mode) {
   $('#info-action').classList.toggle('secondary', !future);
   $('#info-overlay').inert = false;
   $('#info-overlay').hidden = false;
+  $('.info-body').scrollTop = 0;
   $('#screen').inert = true;
   if (future) {
     showEstimate(0);

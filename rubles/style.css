@@ -122,10 +122,10 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;-webkit-t
 .fourth-variant .individual-editor #cancel-edit:not([hidden]){grid-column:1;grid-row:2;margin:0}
 .fourth-variant .individual-editor .editor-panel:has(#cancel-edit:not([hidden])) #done{grid-column:2;grid-row:2}
 .info-overlay{position:absolute;inset:0;background:#0009;z-index:35}
-.info-sheet{position:absolute;inset:auto 0 0;max-height:calc(100% - 12px);overflow:auto;background:white;border-radius:32px 32px 0 0}
-.sheet-handle{width:39px;height:4px;margin:8px auto 0;border-radius:4px;background:#d5d5d5}
+.info-sheet{position:absolute;inset:auto 0 0;display:flex;flex-direction:column;max-height:calc(100% - 12px);overflow:hidden;background:white;border-radius:32px 32px 0 0}
+.sheet-handle{flex:none;width:39px;height:4px;margin:8px auto 32px;border-radius:4px;background:#d5d5d5}
 #close-info{position:absolute;right:10px;top:12px;width:32px;height:32px;display:grid;place-items:center;background:transparent}
-.info-body{padding:30px 16px 18px}
+.info-body{min-height:0;overflow-y:auto;overscroll-behavior-y:contain;padding:0 16px 18px}
 .info-body h2{max-width:310px;font-size:24px;line-height:28px;margin:0 0 10px}
 .info-body p{font-size:15px;line-height:20px}
 .info-body h3{font-size:18px;line-height:22px;margin:20px 0 12px}
@@ -136,7 +136,7 @@ button,input{font:inherit;color:inherit}button{cursor:pointer;border:0;-webkit-t
 .estimate p{margin-top:8px;color:#757575;font-size:13px;line-height:16px}
 #recommendation-details p{display:flex;align-items:center;gap:13px;padding:9px 0;font-weight:500}
 #recommendation-details img{width:48px;height:48px;flex:none;border-radius:16px}
-.info-actions{position:sticky;bottom:0;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 4px 24px #00000012;padding:10px 10px 0}
+.info-actions{flex:none;background:#fff;border-radius:24px 24px 0 0;box-shadow:0 4px 24px #00000012;padding:10px 10px 0}
 .info-actions .home{width:375px;margin-left:-10px}
 
 .bulk-editor .limit-tooltip {
