@@ -270,17 +270,16 @@ function openEditor(itemId = null) {
   const ranges = items.map(product => limits(product.price));
   const commonMinimum = Math.max(...ranges.map(range => range.minimum));
   const commonMaximum = Math.min(...ranges.map(range => range.maximum));
-  const sharedRange = switchableCatalog && !item && commonMinimum <= commonMaximum;
-  const minimum = sharedRange ? commonMinimum : Math.min(...ranges.map(range => range.minimum));
-  const maximum = sharedRange ? commonMaximum : Math.max(...ranges.map(range => range.maximum));
+  const minimum = Math.min(...ranges.map(range => range.minimum));
+  const maximum = Math.max(...ranges.map(range => range.maximum));
   const amounts = items.map(product => preview(product)?.amount ?? optimalAmount(product).amount).sort((a, b) => a - b);
   const middle = amounts[Math.floor(amounts.length / 2)];
   const defaultBulkAmount = commonMinimum <= commonMaximum ? Math.max(commonMinimum, Math.min(commonMaximum, middle)) : middle;
   let initial = item ? amounts[0] : group?.amount ?? sharedCustomAmount(items) ?? defaultBulkAmount;
   if (switchableCatalog && !item) {
-    initial = sharedRange ? Math.max(minimum, Math.min(maximum, initial)) : bestCoveredAmount(ranges, initial);
+    initial = bestCoveredAmount(ranges, initial);
   }
-  state.editor = { item, items: [...items], group, minimum, maximum, sharedRange, draft: String(initial), clamp: { lower: true, upper: true }, scrollTop: $('#scroll').scrollTop };
+  state.editor = { item, items: [...items], group, minimum, maximum, draft: String(initial), clamp: { lower: true, upper: true }, scrollTop: $('#scroll').scrollTop };
   hideToast();
   setEditorProductVisibility();
   PrototypeMotion.layout(positions);
@@ -297,10 +296,9 @@ function openEditor(itemId = null) {
   PrototypeMotion.openEditor(origin);
 }
 function editorResults() {
-  const { items, draft, clamp, sharedRange, minimum, maximum } = state.editor;
-  const requested = sharedRange && draft !== '' ? Math.max(minimum, Math.min(maximum, Number(draft))) : draft;
+  const { items, draft, clamp } = state.editor;
   return items.map(item => {
-    const result = calculateAmount(item, requested);
+    const result = calculateAmount(item, draft);
     let limit = null;
     if (result?.requestedAmount < result?.minimum) limit = 'lower';
     if (result?.requestedAmount > result?.maximum) limit = 'upper';
@@ -309,7 +307,7 @@ function editorResults() {
 }
 
 function updateEditor() {
-  const { item, draft, minimum, maximum, sharedRange } = state.editor;
+  const { item, draft, minimum, maximum } = state.editor;
   const results = editorResults();
   const result = results[0].result;
   if (item) $('#editor-product').innerHTML = `<div class="product-photo">${photo(item)}</div><div class="product-body"><strong class="product-price">${money(item.price)}</strong><p class="product-title" id="editor-product-title">${item.title}</p><span class="editor-discount ${result ? '' : 'placeholder'}">${result ? money(result.requestedAmount) : 'Скидка ₽'}</span></div>`;
@@ -335,7 +333,7 @@ function updateEditor() {
     : stageDiscounts ? 'Готово' : included ? `Применить скидку ${included} ${recipientWord(included)}` : 'Применить скидку';
   $('#cancel-edit').hidden = !item || connected;
   $('#remove-discount').hidden = !connected;
-  const limited = (item || sharedRange) && draft !== '' && (Number(draft) < minimum || Number(draft) > maximum);
+  const limited = item && draft !== '' && (Number(draft) < minimum || Number(draft) > maximum);
   $('#limit-tooltip').hidden = !limited;
   $('#limit-tooltip').textContent = limited ? `${Number(draft) < minimum ? 'Минимальная' : 'Максимальная'}: ${money(Number(draft) < minimum ? minimum : maximum)}` : '';
   renderLimitNotice(item ? [] : results);
@@ -347,18 +345,16 @@ function updateEditor() {
 function renderLimitNotice(results) {
   const notice = $('#bulk-notice');
   const interactive = canExcludeLimitedItems;
-  const limitTypes = switchableCatalog ? ['outside'] : ['lower', 'upper'];
+  const limitTypes = ['lower', 'upper'];
   const notices = limitTypes.flatMap(limit => {
-    const affected = results.filter(entry => limit === 'outside' ? entry.limit : entry.limit === limit);
-    const count = affected.length;
+    const count = results.filter(entry => entry.limit === limit).length;
     if (!count) return [];
-    const mixed = affected.some(entry => entry.limit !== affected[0].limit);
-    const lower = affected[0].limit === 'lower';
-    const label = mixed ? `Скидка вне диапазона для ${count} ${genitiveWord(count)}` : `Скидка ${lower ? 'меньше минимальной' : 'больше максимальной'} для ${count} ${genitiveWord(count)}`;
+    const lower = limit === 'lower';
+    const label = `Скидка ${lower ? 'меньше минимальной' : 'больше максимальной'} для ${count} ${genitiveWord(count)}`;
     const pronoun = count === 1 ? 'ему' : 'им';
     const amount = lower ? 'минимальную' : 'максимальную';
     if (!interactive) {
-      const explanation = mixed ? 'Для каждого установим ближайшую допустимую скидку' : `Установим ${pronoun} ${lower ? 'минимально' : 'максимально'} возможную скидку`;
+      const explanation = `Установим ${pronoun} ${lower ? 'минимально' : 'максимально'} возможную скидку`;
       return [`<div role="status"><p>${label}</p><p>${explanation}</p></div>`];
     }
     const checked = state.editor.clamp[limit];

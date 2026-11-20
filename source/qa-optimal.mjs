@@ -276,10 +276,11 @@ try {
   }
   await variants.locator('[data-category="0"]').click();
   await variants.locator('#edit-bulk').click();
-  for (const [amount, message] of [['4500', 'Максимальная: 245 ₽'], ['1', 'Минимальная: 110 ₽']]) {
+  check('Home group spans the full discount range', await text(variants, '#minimum-label') === '30 ₽' && await text(variants, '#maximum-label') === '1 230 ₽');
+  for (const [amount, message] of [['4500', 'Скидка больше максимальной для 4 товаров'], ['1', 'Скидка меньше минимальной для 4 товаров']]) {
     await variants.locator('#amount').fill(amount);
-    const hint = variants.locator('#limit-tooltip');
-    check(`Visible shared-bound tooltip for ${amount}`, await hint.innerText() === message && await hint.evaluate(el => {
+    const hint = variants.locator('#bulk-notice');
+    check(`Visible bulk limit notice for ${amount}`, (await hint.innerText()).includes(message) && await hint.evaluate(el => {
       const rect = el.getBoundingClientRect();
       const stack = el.closest('.editor-stack').getBoundingClientRect();
       const panel = document.querySelector('.editor-panel').getBoundingClientRect();
@@ -287,11 +288,14 @@ try {
     }));
     check(`All four recipients can apply ${amount}`, await text(variants, '#done') === 'Применить скидку 4 товарам');
   }
-  await variants.locator('#amount').fill('4500');
-  await shot(variants, 'v4-bulk-tooltip');
+  await variants.locator('#amount').fill('500');
+  check('Only two home products exceed their maximum at 500 rubles', (await text(variants, '#bulk-notice')).includes('больше максимальной для 2 товаров'));
+  await shot(variants, 'v4-bulk-notice');
   await variants.locator('#done').click();
   await variants.locator('[data-tab="discounted"]').click();
-  check('All four limited discounts persist at the shared maximum', (await variants.locator('.discount-chip').allTextContents()).filter(label => label.trim() === '245 ₽').length === 4);
+  for (const [id, value] of [['mug', 245], ['basket', 468], ['lamp', 500], ['espresso', 500]]) {
+    check(`Home product ${id} saves its individually limited discount`, await text(variants, `.discount-chip[data-edit="v4-${id}"]`) === `${value} ₽`);
+  }
   await variants.reload();
   await variants.locator('#loading').waitFor({ state: 'hidden' });
   await variants.locator('#future-toggle').click();
@@ -329,9 +333,18 @@ try {
   await select(variants, 'v4-scarf');
   const optimalButton = variants.locator('[data-range="optimal"]');
   await variants.locator('#edit-bulk').click();
-  check('Variant 4 offers the intersection for book and scarf', (await text(variants, '#maximum-label')) === '350 ₽' && await variants.locator('#bulk-notice').isHidden());
-  await variants.locator('#amount').fill('999');
-  check('A common range never needs exception switches', await text(variants, '#limit-tooltip') === 'Максимальная: 350 ₽' && await variants.locator('#bulk-notice').isHidden());
+  check('Book and scarf offer their combined range and start at a compatible amount', await text(variants, '#minimum-label') === '30 ₽' && await text(variants, '#maximum-label') === '593 ₽' && await variants.locator('#bulk-notice').isHidden());
+  const slider = variants.locator('#amount-slider');
+  const track = await slider.boundingBox();
+  await variants.mouse.move(track.x + track.width / 2, track.y + track.height / 2);
+  await variants.mouse.down();
+  await variants.mouse.move(track.x + track.width - 1, track.y + track.height / 2, { steps: 6 });
+  await variants.mouse.up();
+  check('Dragging to the maximum only caps the book', await variants.locator('#amount').inputValue() === '593' && (await text(variants, '#bulk-notice')).includes('больше максимальной для 1 товара'));
+  await slider.press('Home');
+  check('Slider minimum only raises the scarf', await variants.locator('#amount').inputValue() === '30' && (await text(variants, '#bulk-notice')).includes('меньше минимальной для 1 товара'));
+  await variants.locator('#amount').fill('350');
+  check('A compatible amount clears the bulk notice', await variants.locator('#bulk-notice').isHidden());
   await variants.keyboard.press('Escape');
   await variants.locator('#recommendation-info').click();
   check('Recommendation explanation is available for selected products', await text(variants, '#info-title') === 'Нейросеть рекомендует скидку');
@@ -354,7 +367,7 @@ try {
   const notice = variants.locator('#bulk-notice');
   check('Variant 4 explains the initial exception without a switch', await notice.getByRole('switch').count() === 0 && (await notice.innerText()).includes('для 1 товара'));
   await variants.locator('#amount').fill('267');
-  check('Opposite bounds share one explanation', await notice.getByRole('status').count() === 1 && (await notice.innerText()).includes('для 2 товаров') && (await notice.innerText()).includes('ближайшую допустимую скидку'));
+  check('One notice reports the counts for both limits', (await notice.innerText()).includes('меньше минимальной для 1 товара') && (await notice.innerText()).includes('больше максимальной для 1 товара'));
   check('All selected items receive an amount including both exceptions', await text(variants, '#done') === 'Применить скидку 16 товарам' && await notice.getByRole('switch').count() === 0);
   await variants.locator('#amount').fill('85');
   check('Variant 4 confirms bulk discounts directly in the editor', await text(variants, '#done') === 'Применить скидку 16 товарам');
