@@ -16,6 +16,9 @@ const app = $('#app');
 const amountMeasure = document.createElement('canvas').getContext('2d');
 const visibleItems = () => inventory.filter(item => state.tab === 'eligible' ? !state.applied.has(item.id) : state.applied.has(item.id));
 const chosenItems = () => visibleItems().filter(item => state.selected.has(item.id));
+function selectionPillClears(chosenCount, visibleCount) {
+  return chosenCount > 0 && (switchableCatalog || chosenCount === visibleCount);
+}
 function groupItems(index) {
   const items = catalogGroups[index].items;
   const members = !switchableCatalog && index === 0 ? [...items, startingItem] : items;
@@ -148,7 +151,7 @@ function render(animate = true) {
   $('#selection-count').textContent = chosen.length ? `${chosen.length} ${word(chosen.length)}` : 'Выбрать все';
   $('#select-all').disabled = !visibleItems().length;
   $('#select-all').setAttribute('aria-pressed', String(chosen.length > 0));
-  $('#select-all').setAttribute('aria-label', chosen.length === visibleItems().length ? 'Снять выбор со всех товаров' : 'Выбрать все товары');
+  $('#select-all').setAttribute('aria-label', selectionPillClears(chosen.length, visibleItems().length) ? 'Снять выбор со всех товаров' : 'Выбрать все товары');
   const activeGroup = renderDiscountGroups(chosen);
   if (activeGroup) {
     $('#options').innerHTML = groupOptions(activeGroup);
@@ -475,7 +478,7 @@ $('#select-all').addEventListener('click', () => {
   PrototypeMotion.clearGhosts();
   const items = visibleItems();
   const previousSelection = state.selected;
-  state.selected = new Set(chosenItems().length === items.length ? [] : items.map(item => item.id));
+  state.selected = new Set(selectionPillClears(chosenItems().length, items.length) ? [] : items.map(item => item.id));
   prepareSelection(previousSelection);
   render();
 });

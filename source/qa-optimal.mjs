@@ -274,6 +274,19 @@ try {
     check(`Delivery omits simulated device bars at ${width}px`, await variants.locator('.statusbar').isHidden() && await variants.locator('#screen').evaluate(el => getComputedStyle(el, '::after').display === 'none'));
     check(`Delivery starts with back navigation at ${width}px`, await variants.locator('.hero .back').evaluate(el => el.offsetTop === 0));
   }
+  const selectionPill = variants.locator('#select-all');
+  async function clearWithPill(expected) {
+    check(`Counter for ${expected} offers clearing`, await text(variants, '#selection-count') === expected && await selectionPill.getAttribute('aria-label') === 'Снять выбор со всех товаров');
+    await selectionPill.click();
+    check(`One click clears ${expected}`, await variants.locator('[data-select][aria-pressed="true"]').count() === 0 && await text(variants, '#selection-count') === 'Выбрать все' && await variants.locator('.calculator').isHidden());
+  }
+  await select(variants, 'v4-mug');
+  await clearWithPill('1 товар');
+  await selectionPill.click();
+  await variants.locator('[data-category="0"]').click();
+  await clearWithPill('12 товаров');
+  await selectionPill.click();
+  await clearWithPill('16 товаров');
   await variants.locator('[data-category="0"]').click();
   await variants.locator('#edit-bulk').click();
   check('Home group spans the full discount range', await text(variants, '#minimum-label') === '30 ₽' && await text(variants, '#maximum-label') === '1 230 ₽');
@@ -296,6 +309,9 @@ try {
   for (const [id, value] of [['mug', 245], ['basket', 468], ['lamp', 500], ['espresso', 500]]) {
     check(`Home product ${id} saves its individually limited discount`, await text(variants, `.discount-chip[data-edit="v4-${id}"]`) === `${value} ₽`);
   }
+  await select(variants, 'v4-mug');
+  await clearWithPill('1 товар');
+  check('Clearing selection preserves the five active discounts', await text(variants, '#discounted-count') === '5');
   await variants.reload();
   await variants.locator('#loading').waitFor({ state: 'hidden' });
   await variants.locator('#future-toggle').click();
